@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>प्रहरी कर्मचारी डिजिटल अभिलेख प्रणाली - काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #0f172a;
+            --secondary: #0284c7;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --border: #cbd5e1;
+            --danger: #dc2626;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: #334155; padding: 15px; font-size: 13px; }
+
+        header {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            color: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; text-align: center; position: relative;
+        }
+
+        header h1 { font-size: 20px; margin-bottom: 5px; }
+        header h2 { font-size: 15px; font-weight: 400; color: #93c5fd; margin-bottom: 8px; }
+
+        .action-buttons { margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 8px 14px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+        .btn-excel { background-color: #16a34a; color: white; }
+        .btn-import { background-color: #0284c7; color: white; }
+        .btn-backup { background-color: #7c3aed; color: white; }
+        .btn-restore { background-color: #d97706; color: white; }
+        .btn-print { background-color: #e2e8f0; color: #0f172a; }
+        .btn-primary { background-color: #2563eb; color: white; }
+        .btn-warning { background-color: #f59e0b; color: white; }
+        .btn-cancel { background-color: #64748b; color: white; }
+        .btn-danger { background-color: #ef4444; color: white; }
+
+        .panel { background: var(--card); padding: 18px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; border: 1px solid var(--border); }
+        .panel-title { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 12px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-weight: 600; font-size: 12px; color: #475569; }
+        .form-group input, .form-group select { padding: 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; }
+
+        .prefix-input-group {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .prefix-input-group .prefix-addon {
+            background-color: #e2e8f0;
+            color: #1e3a8a;
+            padding: 8px 10px;
+            font-weight: 700;
+            font-size: 12px;
+            border-right: 1px solid var(--border);
+            user-select: none;
+        }
+        .prefix-input-group input {
+            border: none !important;
+            border-radius: 0 !important;
+            width: 100%;
+            outline: none;
+        }
+
+        .controls { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .filter-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .filter-group select, .filter-group input { padding: 6px 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 12px; }
+
+        .table-responsive { overflow-x: auto; max-height: 60vh; border: 1px solid var(--border); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; background: white; white-space: nowrap; }
+        thead { position: sticky; top: 0; background-color: var(--primary-dark); color: white; z-index: 10; }
+        th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; font-size: 12px; }
+        tbody tr:nth-child(even) { background-color: #f8fafc; }
+        tbody tr:hover { background-color: #e0f2fe; }
+
+        .status-badge { background-color: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #bae6fd; display: inline-block; margin: 2px; }
+        .total-badge { background-color: #dcfce7; color: #15803d; padding: 3px 10px; border-radius: 4px; font-weight: 700; cursor: pointer; }
+
+        footer {
+            text-align: center;
+            padding: 16px 20px;
+            margin-top: 25px;
+            background: linear-gradient(135deg, #1e3a8a, #0f172a);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.3px;
+        }
+
+        .designer-name {
+            color: #1e3a8a;
+            background-color: #fef08a;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            display: inline-block;
+            margin-left: 5px;
+            border: 1px solid #fde047;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        #restoreFileInput, #excelFileInput { display: none; }
+
+        @page {
+            size: A4 landscape;
+            margin: 8mm;
+        }
+
+        @media print { 
+            .no-print { display: none !important; } 
+            body { padding: 0; background: white; font-size: 10px; } 
+            .panel { border: none; box-shadow: none; padding: 0; margin-bottom: 10px; }
+            .table-responsive { max-height: none; overflow: visible; border: none; }
+            table { font-size: 10px; width: 100%; page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            th, td { padding: 4px 6px; }
+            
+            footer {
+                background: none !important;
+                color: #1e3a8a !important;
+                border-top: 2px solid #1e3a8a !important;
+                border-radius: 0 !important;
+                margin-top: 15px !important;
+                padding: 10px 0 !important;
+                font-size: 11px !important;
+                box-shadow: none !important;
+            }
+            .designer-name {
+                background: none !important;
+                color: #0f172a !important;
+                border: none !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २ महाराजगञ्ज</h1>
+        <h2>प्रहरी कर्मचारीहरूको तालिम तथा व्यक्तिगत डिजिटल अभिलेख प्रणाली</h2>
+
+        <div class="action-buttons no-print">
+            <button class="btn btn-excel" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Excel डाउनलोड (.xlsx)</button>
+            <button class="btn btn-import" onclick="triggerExcelImport()"><i class="fa-solid fa-file-upload"></i> Excel (.xlsx/.xls) अपलोड</button>
+            <button class="btn btn-backup" onclick="exportJSONBackup()"><i class="fa-solid fa-download"></i> JSON ब्याकअप</button>
+            <button class="btn btn-restore" onclick="triggerRestore()"><i class="fa-solid fa-upload"></i> रिस्टोर (Restore)</button>
+            <button class="btn btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> प्रिन्ट / PDF</button>
+
+            <input type="file" id="restoreFileInput" accept=".json" onchange="importJSONBackup(event)">
+            <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" onchange="importExcelFile(event)">
+        </div>
+    </header>
+
+    <!-- Entry Form Panel -->
+    <div class="panel no-print">
+        <div class="panel-title">
+            <span id="formHeaderTitle"><i class="fa-solid fa-user-plus"></i> नयाँ प्रहरी कर्मचारीको विवरण प्रविष्टि (Entry Form)</span>
+            <span id="editBadge" class="status-badge" style="display: none; cursor:default; background:#fef3c7; color:#92400e;">संशोधन मोड</span>
+        </div>
+        <form id="recordForm">
+            <input type="hidden" id="editRecordId" value="">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>कम्प्युटर कोड *:</label>
+                    <input type="text" id="compCode" placeholder="उदा: 371209" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>संकेत नम्बर *:</label>
+                    <div class="prefix-input-group">
+                        <span class="prefix-addon">C-</span>
+                        <input type="text" id="pmisNo" placeholder="001412" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>दर्जा *:</label>
+                    <select id="rank" required>
+                        <option value="">दर्जा छान्नुहोस्</option>
+                        <option value="प्रउ">प्रउ</option>
+                        <option value="प्रनाउ">प्रनाउ</option>
+                        <option value="प्रनि">प्रनि</option>
+                        <option value="प्रवनानि">प्रवनानि</option>
+                        <option value="प्रनानि">प्रनानि</option>
+                        <option value="प्रसनि">प्रसनि</option>
+                        <option value="प्रवह">प्रवह</option>
+                        <option value="प्रह">प्रह</option>
+                        <option value="प्रसह">प्रसह</option>
+                        <option value="प्रज">प्रज</option>
+                        <option value="प्रकास">प्रकास</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>नाम/थर *:</label>
+                    <input type="text" id="fullname" placeholder="पुरा नाम लेख्नुहोस्" required>
+                </div>
+                <div class="form-group">
+                    <label>दरबन्दी *:</label>
+                    <input type="text" id="darbandi" placeholder="दरबन्दी स्थान" required>
+                </div>
+                <div class="form-group">
+                    <label>कार्यरत स्थान (फिल्ड) *:</label>
+                    <input type="text" id="workingPlace" placeholder="हाल खटिएको स्थान" required>
+                </div>
+                <div class="form-group">
+                    <label>भर्ना मिति (नेपाली BS) *:</label>
+                    <input type="text" id="joinDate" placeholder="YYYY-MM-DD (उदा: 2075-04-12)" pattern="\d{4}-\d{2}-\d{2}" title="कृपया YYYY-MM-DD ढाँचामा भर्नुहोस्" required>
+                </div>
+                <div class="form-group">
+                    <label>बढुवा मिति (नेपाली BS):</label>
+                    <input type="text" id="promotionDate" placeholder="YYYY-MM-DD (उदा: 2080-01-15)" pattern="\d{4}-\d{2}-\d{2}" title="कृपया YYYY-MM-DD ढाँचामा भर्नुहोस्">
+                </div>
+                <div class="form-group">
+                    <label>जन्म मिति (नेपाली BS) *:</label>
+                    <input type="text" id="dob" placeholder="YYYY-MM-DD (उदा: 2052-06-20)" pattern="\d{4}-\d{2}-\d{2}" title="कृपया YYYY-MM-DD ढाँचामा भर्नुहोस्" required>
+                </div>
+                <div class="form-group">
+                    <label>शैक्षिक योग्यता *:</label>
+                    <input type="text" id="education" placeholder="+2 / B.A." required>
+                </div>
+                <div class="form-group">
+                    <label>सम्पर्क नम्बर *:</label>
+                    <input type="tel" id="phone" placeholder="98XXXXXXXX" pattern="[9][6-8][0-9]{8}" title="Valid १० अङ्कको मोबाइल नम्बर राख्नुहोस्" required>
+                </div>
+                <div class="form-group">
+                    <label>आफन्तको सम्पर्क नम्बर *:</label>
+                    <input type="tel" id="relativePhone" placeholder="98XXXXXXXX" pattern="[9][6-8][0-9]{8}" title="Valid १० अङ्कको मोबाइल नम्बर राख्नुहोस्" required>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>तालिमको विवरण (कमा/Comma ले छुट्याउनुहोस्):</label>
+                    <input type="text" id="trainingDetails" placeholder="उदा: आधारभूत, विपद् व्यवस्थापन, VIP सुरक्षा">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>घुम्ती तालिम:</label>
+                    <input type="text" id="mobileTraining" placeholder="घुम्ती तालिम विवरण">
+                </div>
+            </div>
+            <div style="margin-top: 15px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" id="cancelBtn" class="btn btn-cancel" style="display: none;" onclick="resetForm()"><i class="fa-solid fa-xmark"></i> रद्द गर्नुहोस्</button>
+                <button type="submit" id="submitBtn" class="btn btn-primary"><i class="fa-solid fa-save"></i> विवरण सुरक्षित गर्नुहोस्</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Summary Panel -->
+    <div class="panel">
+        <div class="panel-title">
+            <span><i class="fa-solid fa-chart-pie"></i> तालीमगत तथा दर्जागत संख्यात्मक तथ्याङ्क (Summary)</span>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>क्र.सं.</th>
+                        <th>तालिमको नाम</th>
+                        <th>दर्जागत संख्यात्मक विवरण</th>
+                        <th>जम्मा</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Records Table Panel -->
+    <div class="panel" id="recordsSection">
+        <div class="controls no-print" style="margin-bottom: 12px;">
+            <div class="panel-title" style="border:none; margin:0; padding:0;">
+                <span><i class="fa-solid fa-list"></i> दर्ता अभिलेख सूची (<span id="recordCount">0</span> जना)</span>
+            </div>
+            <div class="filter-group">
+                <select id="trainingFilter" onchange="renderTable()"><option value="">-- सबै तालिम --</option></select>
+                <select id="rankFilter" onchange="renderTable()"><option value="">-- सबै दर्जा --</option></select>
+                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 खोजी गर्नुहोस्..." style="width:180px;">
+                <button class="btn btn-cancel" onclick="clearFilters()"><i class="fa-solid fa-rotate-left"></i> रिसेट</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>क्र.सं.</th>
+                        <th>कम्प्युटर कोड</th>
+                        <th>संकेत नं.</th>
+                        <th>दर्जा</th>
+                        <th>नाम/थर</th>
+                        <th>दरबन्दी</th>
+                        <th>कार्यरत स्थान</th>
+                        <th>भर्ना मिति</th>
+                        <th>बढुवा मिति</th>
+                        <th>जन्म मिति</th>
+                        <th>शैक्षिक योग्यता</th>
+                        <th>तालिम विवरण</th>
+                        <th>घुम्ती तालिम</th>
+                        <th>सम्पर्क नं.</th>
+                        <th>आफन्तको नं.</th>
+                        <th class="no-print">कार्य (Actions)</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Premium Footer Section -->
+    <footer>
+        <p>
+            © काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २ महाराजगञ्ज &nbsp;|&nbsp; 
+            <i class="fa-solid fa-laptop-code" style="color:#fde047;"></i> System Designed & Developed by: 
+            <span class="designer-name">Baikuntha Subedi</span>
+        </p>
+    </footer>
+</div>
+
+<script>
+    let staffRecords = JSON.parse(localStorage.getItem('police_records_v4')) || [];
+    let currentlyDisplayedRecords = [];
+
+    const ranksList = ["प्रउ", "प्रनाउ", "प्रनि", "प्रवनानि", "प्रनानि", "प्रसनि", "प्रवह", "प्रह", "प्रसह", "प्रज", "प्रकास"];
+
+    function initRankFilterDropdown() {
+        const rankSelect = document.getElementById('rankFilter');
+        rankSelect.innerHTML = '<option value="">-- सबै दर्जा --</option>';
+        ranksList.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r;
+            opt.textContent = r;
+            rankSelect.appendChild(opt);
+        });
+    }
+
+    function generateUniqueId() {
+        return 'rec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+    }
+
+    function saveData() {
+        localStorage.setItem('police_records_v4', JSON.stringify(staffRecords));
+        refreshUI();
+    }
+
+    function refreshUI() {
+        updateTrainingDropdown();
+        renderSummaryTable();
+        renderTable();
+    }
+
+    function escapeHtml(str) {
+        if (!str && str !== 0) return '-';
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function updateTrainingDropdown() {
+        const select = document.getElementById('trainingFilter');
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">-- सबै तालिम --</option>';
+
+        let trainSet = new Set();
+        staffRecords.forEach(r => {
+            if (r.trainingDetails) r.trainingDetails.split(',').forEach(t => t.trim() && trainSet.add(t.trim()));
+            if (r.mobileTraining) r.mobileTraining.split(',').forEach(t => t.trim() && trainSet.add(t.trim()));
+        });
+
+        Array.from(trainSet).sort().forEach(tName => {
+            const opt = document.createElement('option');
+            opt.value = tName;
+            opt.textContent = tName;
+            if (tName === currentVal) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    function renderSummaryTable() {
+        const tbody = document.getElementById('summaryTableBody');
+        let summaryData = {};
+
+        staffRecords.forEach(record => {
+            let userTrainings = new Set();
+            if (record.trainingDetails) record.trainingDetails.split(',').map(s => s.trim()).filter(Boolean).forEach(t => userTrainings.add(t));
+            if (record.mobileTraining) record.mobileTraining.split(',').map(s => s.trim()).filter(Boolean).forEach(t => userTrainings.add(t));
+
+            userTrainings.forEach(tName => {
+                if (!summaryData[tName]) summaryData[tName] = {};
+                let rank = record.rank || "अन्य";
+                summaryData[tName][rank] = (summaryData[tName][rank] || 0) + 1;
+            });
+        });
+
+        const keys = Object.keys(summaryData);
+        if (keys.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px; color:#64748b;">कुनै डाटा उपलब्ध छैन।</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        keys.sort().forEach((tName, idx) => {
+            let total = 0;
+            let rankDetails = [];
+            for (const [rank, count] of Object.entries(summaryData[tName])) {
+                total += count;
+                rankDetails.push(`<span class="status-badge" onclick="filterBySummary('${escapeHtml(tName)}', '${escapeHtml(rank)}')"><b>${escapeHtml(rank)}:</b> ${count} जना</span>`);
+            }
+            html += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td><b style="color:var(--primary);">${escapeHtml(tName)}</b></td>
+                    <td>${rankDetails.join(' ')}</td>
+                    <td><span class="total-badge" onclick="filterBySummary('${escapeHtml(tName)}', '')">${total} जना</span></td>
+                </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function filterBySummary(tName, rank) {
+        document.getElementById('trainingFilter').value = tName;
+        document.getElementById('rankFilter').value = rank;
+        document.getElementById('searchInput').value = '';
+        renderTable();
+        document.getElementById('recordsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const selectedTraining = document.getElementById('trainingFilter').value.trim();
+        const selectedRank = document.getElementById('rankFilter').value;
+
+        let filteredRecords = staffRecords.filter(item => {
+            if (selectedTraining) {
+                let allTrainings = ((item.trainingDetails || '') + ',' + (item.mobileTraining || '')).split(',').map(s => s.trim());
+                let matchFound = allTrainings.some(t => t.toLowerCase() === selectedTraining.toLowerCase());
+                if (!matchFound) return false;
+            }
+            
+            if (selectedRank && item.rank !== selectedRank) return false;
+
+            if (query) {
+                const searchableText = `${item.compCode} ${item.pmisNo} ${item.rank} ${item.fullname} ${item.darbandi} ${item.workingPlace} ${item.education} ${item.phone} ${item.relativePhone} ${item.trainingDetails} ${item.mobileTraining}`.toLowerCase();
+                return searchableText.includes(query);
+            }
+            return true;
+        });
+
+        // तालिम फिल्टर गर्दा तालिकाको 'तालिम विवरण' कोलममा पनि त्यही मात्र तालिम देखाउने
+        currentlyDisplayedRecords = filteredRecords.map(item => {
+            let copiedItem = { ...item };
+            if (selectedTraining) {
+                let regularTrainings = (item.trainingDetails || '').split(',').map(s => s.trim());
+                let mobileTrainings = (item.mobileTraining || '').split(',').map(s => s.trim());
+                
+                let matchedReg = regularTrainings.filter(t => t.toLowerCase() === selectedTraining.toLowerCase());
+                let matchedMob = mobileTrainings.filter(t => t.toLowerCase() === selectedTraining.toLowerCase());
+
+                if (matchedReg.length > 0) copiedItem.trainingDetails = matchedReg.join(', ');
+                else copiedItem.trainingDetails = '-';
+
+                if (matchedMob.length > 0) copiedItem.mobileTraining = matchedMob.join(', ');
+                else copiedItem.mobileTraining = '-';
+            }
+            return copiedItem;
+        });
+
+        document.getElementById('recordCount').innerText = currentlyDisplayedRecords.length;
+
+        if (currentlyDisplayedRecords.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="16" style="text-align:center; padding:20px; color:#64748b;">कुनै पनि अभिलेख भेटिएन।</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        currentlyDisplayedRecords.forEach((item, index) => {
+            html += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><b>${escapeHtml(item.compCode)}</b></td>
+                    <td>${escapeHtml(item.pmisNo)}</td>
+                    <td>${escapeHtml(item.rank)}</td>
+                    <td><b>${escapeHtml(item.fullname)}</b></td>
+                    <td>${escapeHtml(item.darbandi)}</td>
+                    <td>${escapeHtml(item.workingPlace)}</td>
+                    <td>${escapeHtml(item.joinDate)}</td>
+                    <td>${escapeHtml(item.promotionDate)}</td>
+                    <td>${escapeHtml(item.dob)}</td>
+                    <td>${escapeHtml(item.education)}</td>
+                    <td>${escapeHtml(item.trainingDetails)}</td>
+                    <td>${escapeHtml(item.mobileTraining)}</td>
+                    <td>${escapeHtml(item.phone)}</td>
+                    <td>${escapeHtml(item.relativePhone)}</td>
+                    <td class="no-print">
+                        <button class="btn btn-warning" style="padding:3px 6px; font-size:11px;" onclick="editRecord('${item.id}')" title="सच्याउनुहोस्"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn btn-danger" style="padding:3px 6px; font-size:11px;" onclick="deleteRecord('${item.id}')" title="हटाउनुहोस्"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function deleteRecord(id) {
+        if (confirm("के तपाईं यो प्रहरी कर्मचारीको विवरण पक्का हटाउन चाहनुहुन्छ?")) {
+            staffRecords = staffRecords.filter(r => String(r.id) !== String(id));
+            saveData();
+        }
+    }
+
+    document.getElementById('recordForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const recordId = document.getElementById('editRecordId').value;
+
+        let rawPmis = document.getElementById('pmisNo').value.trim();
+        let formattedPmis = rawPmis.toUpperCase().startsWith('C-') ? rawPmis.toUpperCase() : 'C-' + rawPmis;
+
+        const recordObj = {
+            id: recordId ? recordId : generateUniqueId(),
+            compCode: document.getElementById('compCode').value.trim(),
+            pmisNo: formattedPmis,
+            rank: document.getElementById('rank').value,
+            fullname: document.getElementById('fullname').value.trim(),
+            darbandi: document.getElementById('darbandi').value.trim(),
+            workingPlace: document.getElementById('workingPlace').value.trim(),
+            joinDate: document.getElementById('joinDate').value.trim(),
+            promotionDate: document.getElementById('promotionDate').value.trim(),
+            dob: document.getElementById('dob').value.trim(),
+            education: document.getElementById('education').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            relativePhone: document.getElementById('relativePhone').value.trim(),
+            trainingDetails: document.getElementById('trainingDetails').value.trim(),
+            mobileTraining: document.getElementById('mobileTraining').value.trim()
+        };
+
+        if (recordId) {
+            const idx = staffRecords.findIndex(r => String(r.id) === String(recordId));
+            if (idx !== -1) staffRecords[idx] = recordObj;
+        } else {
+            staffRecords.unshift(recordObj);
+        }
+
+        saveData();
+        resetForm();
+    });
+
+    function editRecord(id) {
+        const item = staffRecords.find(r => String(r.id) === String(id));
+        if (!item) return;
+
+        document.getElementById('editRecordId').value = item.id;
+        document.getElementById('compCode').value = item.compCode || '';
+        
+        let pmisClean = item.pmisNo || '';
+        if (pmisClean.toUpperCase().startsWith('C-')) {
+            pmisClean = pmisClean.substring(2);
+        }
+        document.getElementById('pmisNo').value = pmisClean;
+
+        document.getElementById('rank').value = item.rank || '';
+        document.getElementById('fullname').value = item.fullname || '';
+        document.getElementById('darbandi').value = item.darbandi || '';
+        document.getElementById('workingPlace').value = item.workingPlace || '';
+        document.getElementById('joinDate').value = item.joinDate || '';
+        document.getElementById('promotionDate').value = item.promotionDate || '';
+        document.getElementById('dob').value = item.dob || '';
+        document.getElementById('education').value = item.education || '';
+        document.getElementById('phone').value = item.phone || '';
+        document.getElementById('relativePhone').value = item.relativePhone || '';
+        document.getElementById('trainingDetails').value = item.trainingDetails || '';
+        document.getElementById('mobileTraining').value = item.mobileTraining || '';
+
+        document.getElementById('formHeaderTitle').innerHTML = `<i class="fa-solid fa-user-pen"></i> प्रहरी कर्मचारी विवरण संशोधन`;
+        document.getElementById('editBadge').style.display = 'inline-block';
+        document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-rotate"></i> अद्यावधिक गर्नुहोस्`;
+        document.getElementById('cancelBtn').style.display = 'inline-flex';
+        document.getElementById('recordForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetForm() {
+        document.getElementById('editRecordId').value = '';
+        document.getElementById('recordForm').reset();
+        document.getElementById('formHeaderTitle').innerHTML = `<i class="fa-solid fa-user-plus"></i> नयाँ प्रहरी कर्मचारीको विवरण प्रविष्टि`;
+        document.getElementById('editBadge').style.display = 'none';
+        document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-save"></i> विवरण सुरक्षित गर्नुहोस्`;
+        document.getElementById('cancelBtn').style.display = 'none';
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('trainingFilter').value = '';
+        document.getElementById('rankFilter').value = '';
+        renderTable();
+    }
+
+    function exportExcel() {
+        // यहाँ अहिले स्क्रीनमा फिल्टर भएर देखिएको वा छानिएको डेटा मात्र Excel मा डाउनलोड हुन्छ
+        const recordsToExport = currentlyDisplayedRecords.length > 0 ? currentlyDisplayedRecords : staffRecords;
+        
+        if (recordsToExport.length === 0) {
+            alert("निर्यात गर्नको लागि कुनै डाटा छैन।");
+            return;
+        }
+
+        const dataForExcel = recordsToExport.map((r, index) => ({
+            "क्र.सं.": index + 1,
+            "कम्प्युटर कोड": r.compCode || '',
+            "संकेत नं.": r.pmisNo || '',
+            "दर्जा": r.rank || '',
+            "नाम/थर": r.fullname || '',
+            "दरबन्दी": r.darbandi || '',
+            "कार्यरत स्थान": r.workingPlace || '',
+            "भर्ना मिति": r.joinDate || '',
+            "बढुवा मिति": r.promotionDate || '',
+            "जन्म मिति": r.dob || '',
+            "शैक्षिक योग्यता": r.education || '',
+            "तालिम विवरण": r.trainingDetails || '',
+            "घुम्ती तालिम": r.mobileTraining || '',
+            "सम्पर्क नं.": r.phone || '',
+            "आफन्तको नं.": r.relativePhone || ''
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Training Records");
+        XLSX.writeFile(workbook, "Training_Filtered_Records.xlsx");
+    }
+
+    function triggerExcelImport() { document.getElementById('excelFileInput').click(); }
+
+    function importExcelFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const jsonSheet = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                
+                let count = 0;
+                jsonSheet.forEach(row => {
+                    const compCode = row["कम्प्युटर कोड"] || row["compCode"] || '';
+                    const fullname = row["नाम/थर"] || row["fullname"] || '';
+
+                    let rawPmis = String(row["संकेत नं."] || row["pmisNo"] || '').trim();
+                    let formattedPmis = rawPmis ? (rawPmis.toUpperCase().startsWith('C-') ? rawPmis.toUpperCase() : 'C-' + rawPmis) : '';
+
+                    if (compCode || fullname) {
+                        staffRecords.unshift({
+                            id: generateUniqueId(),
+                            compCode: String(compCode).trim(),
+                            pmisNo: formattedPmis,
+                            rank: String(row["दर्जा"] || row["rank"] || '').trim(),
+                            fullname: String(fullname).trim(),
+                            darbandi: String(row["दरबन्दी"] || row["darbandi"] || '').trim(),
+                            workingPlace: String(row["कार्यरत स्थान"] || row["workingPlace"] || '').trim(),
+                            joinDate: String(row["भर्ना मिति"] || row["joinDate"] || '').trim(),
+                            promotionDate: String(row["बढुवा मिति"] || row["promotionDate"] || '').trim(),
+                            dob: String(row["जन्म मिति"] || row["dob"] || '').trim(),
+                            education: String(row["शैक्षिक योग्यता"] || row["education"] || '').trim(),
+                            trainingDetails: String(row["तालिम विवरण"] || row["trainingDetails"] || '').trim(),
+                            mobileTraining: String(row["घुम्ती तालिम"] || row["mobileTraining"] || '').trim(),
+                            phone: String(row["सम्पर्क नं."] || row["phone"] || '').trim(),
+                            relativePhone: String(row["आफन्तको नं."] || row["relativePhone"] || '').trim()
+                        });
+                        count++;
+                    }
+                });
+
+                saveData();
+                alert(`${count} वटा डाटा सफलतापुर्वक अपलोड भयो!`);
+            } catch (err) {
+                alert("फाइल इम्पोर्ट गर्न सकिएन। ढाँचा जाँच गर्नुहोस्।");
+            }
+            event.target.value = '';
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function exportJSONBackup() {
+        if (staffRecords.length === 0) {
+            alert("ब्याकअप लिनको लागि कुनै डाटा छैन।");
+            return;
+        }
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(staffRecords, null, 2));
+        const a = document.createElement('a');
+        a.href = dataStr;
+        a.download = `Police_Records_Backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+
+    function triggerRestore() { document.getElementById('restoreFileInput').click(); }
+
+    function importJSONBackup(event) {
+        const fileReader = new FileReader();
+        fileReader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (Array.isArray(data)) {
+                    staffRecords = data;
+                    saveData();
+                    alert("डाटा सफलतापूर्वक रिस्टोर भयो!");
+                } else {
+                    alert("अमान्य JSON ढाँचा!");
+                }
+            } catch (err) { alert("JSON फाइल पढ्न सकिएन!"); }
+            event.target.value = '';
+        };
+        if (event.target.files[0]) fileReader.readAsText(event.target.files[0]);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        initRankFilterDropdown();
+        refreshUI();
+    });
+</script>
+
+</body>
+</html>
