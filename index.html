@@ -28,6 +28,13 @@
             color: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; text-align: center; position: relative;
         }
 
+        .header-logo {
+            font-size: 38px;
+            color: #fde047;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
         header h1 { font-size: 20px; margin-bottom: 5px; }
         header h2 { font-size: 15px; font-weight: 400; color: #93c5fd; margin-bottom: 8px; }
 
@@ -180,6 +187,9 @@
 
 <div class="container" id="mainContainer" style="display: none;">
     <header>
+        <div class="header-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
         <h1>काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २ महाराजगञ्ज</h1>
         <h2>प्रहरी कर्मचारीहरूको तालिम तथा व्यक्तिगत डिजिटल अभिलेख प्रणाली</h2>
 
@@ -370,7 +380,7 @@
 
 <script>
     // सुरक्षा पासवर्ड
-    const SYSTEM_PASSWORD = "police123";
+    const SYSTEM_PASSWORD = "gun123";
 
     function checkPassword() {
         const inputVal = document.getElementById('loginPasswordInput').value;
