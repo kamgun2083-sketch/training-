@@ -761,13 +761,12 @@
         if (event.target.files[0]) fileReader.readAsText(event.target.files[0]);
     }
 
-    <script>
+   <script>
     document.addEventListener("DOMContentLoaded", function() {
         initRankFilterDropdown();
         refreshUI();
     });
 
-    // सहि तरिकाले URL मात्र राख्ने:
     const url = "https://script.google.com/macros/s/AKfycbzDZWpUzu5Fz7MLTy6Nw9BwJD9SrPp4N8YSk_vceSf1n9CJ6udRDb538W-hVkYtR679/exec";
 
     document.getElementById('saveButton').addEventListener('click', function(e) {
@@ -778,19 +777,34 @@
             sanketNumber: document.getElementById('sanketNumber').value,
             rank: document.getElementById('rank').value,
             name: document.getElementById('name').value,
-            // आफ्नो आवश्यकता अनुसार अन्य क्षेत्रहरू (Fields) पनि यहाँ थप्न सक्नुहुन्छ...
+            darbandi: document.getElementById('darbandi') ? document.getElementById('darbandi').value : '',
+            workplace: document.getElementById('workplace') ? document.getElementById('workplace').value : '',
+            bhranaMiti: document.getElementById('bhranaMiti') ? document.getElementById('bhranaMiti').value : '',
+            baduwaMiti: document.getElementById('baduwaMiti') ? document.getElementById('baduwaMiti').value : '',
+            birthDate: document.getElementById('birthDate') ? document.getElementById('birthDate').value : '',
+            education: document.getElementById('education') ? document.getElementById('education').value : '',
+            contactNumber: document.getElementById('contactNumber') ? document.getElementById('contactNumber').value : '',
+            personalContact: document.getElementById('personalContact') ? document.getElementById('personalContact').value : '',
+            talim: document.getElementById('talim') ? document.getElementById('talim').value : '',
+            ghumiTalim: document.getElementById('ghumiTalim') ? document.getElementById('ghumiTalim').value : ''
         };
 
         fetch(url, {
             method: "POST",
+            mode: "no-cors", // यो थप्दा CORS को एरर आउँदैन
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify(formData)
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(() => {
             alert("डेटा सफलतापूर्वक सेभ भयो!");
             location.reload();
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            alert("डेटा सेभ गर्नमा समस्या भयो!");
+        });
     });
 </script>
 
