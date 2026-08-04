@@ -793,18 +793,23 @@
             sanketNumber: document.getElementById('sanketNumber').value,
             rank: document.getElementById('rank').value,
             name: document.getElementById('name').value,
-            darbandi: document.getElementById('darbandi') ? document.getElementById('darbandi').value : '',
-            workplace: document.getElementById('workplace') ? document.getElementById('workplace').value : '',
-            bhranaMiti: document.getElementById('bhranaMiti') ? document.getElementById('bhranaMiti').value : '',
-            baduwaMiti: document.getElementById('baduwaMiti') ? document.getElementById('baduwaMiti').value : '',
-            birthDate: document.getElementById('birthDate') ? document.getElementById('birthDate').value : '',
-            education: document.getElementById('education') ? document.getElementById('education').value : '',
-            contactNumber: document.getElementById('contactNumber') ? document.getElementById('contactNumber').value : '',
-            personalContact: document.getElementById('personalContact') ? document.getElementById('personalContact').value : '',
-            talim: document.getElementById('talim') ? document.getElementById('talim').value : '',
-            ghumiTalim: document.getElementById('ghumiTalim') ? document.getElementById('ghumiTalim').value : ''
-        };
-
+            let formData = {
+    computerCode: document.getElementById('computerCode')?.value || '',
+    sanketNumber: document.getElementById('sanketNumber')?.value || '',
+    rank: document.getElementById('rank')?.value || '',
+    name: document.getElementById('name')?.value || '',
+    darbandi: document.getElementById('darbandi')?.value || '',
+    workplace: document.getElementById('workplace')?.value || '',
+    bhranaMiti: document.getElementById('bhranaMiti')?.value || '',
+    baduwaMiti: document.getElementById('baduwaMiti')?.value || '',
+    birthDate: document.getElementById('birthDate')?.value || '',
+    education: document.getElementById('education')?.value || '',
+    contactNumber: document.getElementById('contactNumber')?.value || '',
+    personalContact: document.getElementById('personalContact')?.value || '',
+    talim: document.getElementById('talim')?.value || '',
+    ghumiTalim: document.getElementById('ghumiTalim')?.value || ''
+};
+        
         fetch(url, {
             method: "POST",
             mode: "no-cors", // यो थप्दा CORS को एरर आउँदैन
