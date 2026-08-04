@@ -769,8 +769,24 @@
 
     const url = "https://script.google.com/macros/s/AKfycbx88QcJ41rvUgPFN-LmAgy9HW2IT1OGZghQd9TWuF47Wx5zHfJuMDOAUhWkICRpZON_/exec";
 
-    document.getElementById('saveButton').addEventListener('click', function(e) {
-        e.preventDefault();
+    document.addEventListener("DOMContentLoaded", function() {
+    const saveButton = document.getElementById('saveButton');
+    if (saveButton) {
+        saveButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            let formData = {
+                computerCode: document.getElementById('computerCode').value,
+                sanketNumber: document.getElementById('sanketNumber').value,
+                rank: document.getElementById('rank').value,
+                name: document.getElementById('name').value,
+                // बाँकि कोडहरू...
+            };
+            
+            // यहाँ अगाडि को सब्मिट कोड लेख्नुहोला
+        });
+    }
+});
         
         let formData = {
             computerCode: document.getElementById('computerCode').value,
