@@ -761,9 +761,36 @@
         if (event.target.files[0]) fileReader.readAsText(event.target.files[0]);
     }
 
+    <script>
     document.addEventListener("DOMContentLoaded", function() {
         initRankFilterDropdown();
         refreshUI();
+    });
+
+    // सहि तरिकाले URL मात्र राख्ने:
+    const url = "https://script.google.com/macros/s/AKfycbzDZWpUzu5Fz7MLTy6Nw9BwJD9SrPp4N8YSk_vceSf1n9CJ6udRDb538W-hVkYtR679/exec";
+
+    document.getElementById('saveButton').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        let formData = {
+            computerCode: document.getElementById('computerCode').value,
+            sanketNumber: document.getElementById('sanketNumber').value,
+            rank: document.getElementById('rank').value,
+            name: document.getElementById('name').value,
+            // आफ्नो आवश्यकता अनुसार अन्य क्षेत्रहरू (Fields) पनि यहाँ थप्न सक्नुहुन्छ...
+        };
+
+        fetch(url, {
+            method: "POST",
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("डेटा सफलतापूर्वक सेभ भयो!");
+            location.reload();
+        })
+        .catch(error => console.error('Error:', error));
     });
 </script>
 
