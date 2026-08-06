@@ -101,6 +101,14 @@
         tbody tr:nth-child(even) { background-color: #f8fafc; }
         tbody tr:hover { background-color: #e0f2fe; }
 
+        /* तालिम विवरणको लामो टेक्स्टलाई चिटिक्क राख्न (Ellipsis/Clamped effect) */
+        .truncated-cell {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .status-badge { background-color: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; }
         .clickable-cell { cursor: pointer; color: #1d4ed8; font-weight: 600; text-decoration: underline; text-align: center; }
         .clickable-cell:hover { color: #1e40af; background-color: #eff6ff; }
@@ -159,6 +167,7 @@
             table { font-size: 10px; width: 100%; page-break-inside: auto; }
             tr { page-break-inside: avoid; page-break-after: auto; }
             th, td { padding: 4px 6px; }
+            .truncated-cell { max-width: none; white-space: normal; }
             
             footer {
                 background: none !important;
@@ -195,7 +204,7 @@
 
 <div class="container" id="mainContainer" style="display: none;">
     <header>
-        <img src="data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAMAAACahlG6AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/Ii id="headerLogoImg" class="header-logo-img" alt="नेपाल प्रहरी लोगो">
+        <img src="data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAMAAACahlG6AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/Ii" id="headerLogoImg" class="header-logo-img" alt="नेपाल प्रहरी लोगो">
         <h1>काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २ महाराजगञ्ज</h1>
         <h2>प्रहरी कर्मचारीहरूको तालिम तथा व्यक्तिगत डिजिटल अभिलेख प्रणाली</h2>
 
@@ -374,7 +383,6 @@
         </div>
     </div>
 
-    <!-- Premium Footer Section -->
     <footer>
         <p>
             © काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २ महाराजगञ्ज &nbsp;|&nbsp; 
@@ -387,12 +395,14 @@
 <script>
     // सुरक्षा पासवर्ड
     const SYSTEM_PASSWORD = "gun123";
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbzNUIktts_Rs1cuvotBIb6fYLP6gk8OEJBRZNnHB2kCXMbi9mu9moa5ZTVZiWbdgu_7/exec";
 
     function checkPassword() {
         const inputVal = document.getElementById('loginPasswordInput').value;
         if (inputVal === SYSTEM_PASSWORD) {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'block';
+            fetchCloudData(); // क्लाउडबाट डाटा लोड गर्ने
         } else {
             document.getElementById('loginErrorMsg').style.display = 'block';
             document.getElementById('loginPasswordInput').value = '';
@@ -596,8 +606,8 @@
                     <td>${escapeHtml(item.promotionDate)}</td>
                     <td>${escapeHtml(item.dob)}</td>
                     <td>${escapeHtml(item.education)}</td>
-                    <td>${escapeHtml(item.trainingDetails)}</td>
-                    <td>${escapeHtml(item.mobileTraining)}</td>
+                    <td class="truncated-cell" title="${escapeHtml(item.trainingDetails)}">${escapeHtml(item.trainingDetails)}</td>
+                    <td class="truncated-cell" title="${escapeHtml(item.mobileTraining)}">${escapeHtml(item.mobileTraining)}</td>
                     <td>${escapeHtml(item.phone)}</td>
                     <td>${escapeHtml(item.relativePhone)}</td>
                     <td class="no-print">
@@ -659,7 +669,6 @@
         resetForm();
 
         // Google Apps Script Web URL Integration
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbzNUIktts_Rs1cuvotBIb6fYLP6gk8OEJBRZNnHB2kCXMbi9mu9moa5ZTVZiWbdgu_7/exec";
         fetch(scriptUrl, {
             method: "POST",
             mode: "no-cors",
@@ -667,6 +676,19 @@
             body: JSON.stringify(recordObj)
         }).catch(error => console.error('Apps Script Sync Error:', error));
     });
+
+    // क्लाउड (Google Sheets) बाट डाटा फेच गर्ने फंक्सन
+    function fetchCloudData() {
+        fetch(scriptUrl)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    staffRecords = data;
+                    saveData();
+                }
+            })
+            .catch(err => console.log('Cloud fetch fallback to local storage:', err));
+    }
 
     function editRecord(id) {
         const item = staffRecords.find(r => String(r.id) === String(id));
