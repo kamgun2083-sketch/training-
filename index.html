@@ -98,15 +98,6 @@
         table { width: 100%; border-collapse: collapse; background: white; white-space: nowrap; }
         thead { position: sticky; top: 0; background-color: var(--primary-dark); color: white; z-index: 10; }
         th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; font-size: 12px; }
-        
-        /* Auto-fit and Multi-line handling for Summary & Table cells */
-        .summary-training-cell {
-            white-space: normal !important;
-            word-break: break-word;
-            max-width: 250px;
-            min-width: 160px;
-        }
-
         tbody tr:nth-child(even) { background-color: #f8fafc; }
         tbody tr:hover { background-color: #e0f2fe; }
 
@@ -114,30 +105,6 @@
         .clickable-cell { cursor: pointer; color: #1d4ed8; font-weight: 600; text-decoration: underline; text-align: center; }
         .clickable-cell:hover { color: #1e40af; background-color: #eff6ff; }
         .total-badge { background-color: #dcfce7; color: #15803d; padding: 3px 10px; border-radius: 4px; font-weight: 700; cursor: pointer; display: inline-block; text-align: center; }
-
-        /* Custom Notification Toast */
-        #toastNotification {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            background: #10b981;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            font-weight: 600;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease-in-out;
-        }
-        #toastNotification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
 
         /* Login Modal Styles */
         #loginOverlay {
@@ -214,12 +181,6 @@
     </style>
 </head>
 <body>
-
-<!-- Notification Toast -->
-<div id="toastNotification">
-    <i class="fa-solid fa-circle-check fa-lg"></i>
-    <span id="toastMessage">डेटा सफलतापूर्वक सुरक्षित भयो!</span>
-</div>
 
 <!-- Login Modal -->
 <div id="loginOverlay">
@@ -352,7 +313,7 @@
                 <thead>
                     <tr>
                         <th>क्र.सं.</th>
-                        <th class="summary-training-cell">तालिमको नाम</th>
+                        <th>तालिमको नाम</th>
                         <th style="text-align:center;">प्रउ</th>
                         <th style="text-align:center;">प्रनाउ</th>
                         <th style="text-align:center;">प्रनि</th>
@@ -424,23 +385,14 @@
 </div>
 
 <script>
+    // सुरक्षा पासवर्ड
     const SYSTEM_PASSWORD = "gun123";
-
-    function showToast(message) {
-        const toast = document.getElementById('toastNotification');
-        document.getElementById('toastMessage').innerText = message;
-        toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
-    }
 
     function checkPassword() {
         const inputVal = document.getElementById('loginPasswordInput').value;
         if (inputVal === SYSTEM_PASSWORD) {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'block';
-            initApp();
         } else {
             document.getElementById('loginErrorMsg').style.display = 'block';
             document.getElementById('loginPasswordInput').value = '';
@@ -456,12 +408,8 @@
 
     let staffRecords = JSON.parse(localStorage.getItem('police_records_v4')) || [];
     let currentlyDisplayedRecords = [];
-    const ranksList = ["प्रउ", "प्रनाउ", "प्रनि", "प्रवनानि", "प्रनानि", "प्रसनि", "प्रवह", "प्रह", "प्रसह", "प्रज", "प्रकास"];
 
-    function initApp() {
-        initRankFilterDropdown();
-        refreshUI();
-    }
+    const ranksList = ["प्रउ", "प्रनाउ", "प्रनि", "प्रवनानि", "प्रनानि", "प्रसनि", "प्रवह", "प्रह", "प्रसह", "प्रज", "प्रकास"];
 
     function initRankFilterDropdown() {
         const rankSelect = document.getElementById('rankFilter');
@@ -499,18 +447,14 @@
             .replace(/'/g, "&#039;");
     }
 
-    function isDuplicateRecord(compCode, pmisNo, currentRecordId) {
+    function isComputerCodeExists(compCode, currentRecordId) {
         let cleanCode = String(compCode).trim();
-        let cleanPmis = String(pmisNo).trim().toUpperCase();
-        
+        if (!cleanCode) return false;
         return staffRecords.some(r => {
             if (currentRecordId && String(r.id) === String(currentRecordId)) {
                 return false;
             }
-            let existingPmis = String(r.pmisNo || '').trim().toUpperCase();
-            let existingCode = String(r.compCode || '').trim();
-            
-            return (cleanCode && existingCode === cleanCode) || (cleanPmis && existingPmis === cleanPmis);
+            return String(r.compCode).trim() === cleanCode;
         });
     }
 
@@ -574,7 +518,7 @@
             html += `
                 <tr>
                     <td>${idx + 1}</td>
-                    <td class="summary-training-cell"><b style="color:var(--primary);">${escapeHtml(tName)}</b></td>
+                    <td><b style="color:var(--primary);">${escapeHtml(tName)}</b></td>
                     ${rankCells}
                     <td style="text-align:center;"><span class="total-badge" onclick="filterBySummary('${escapeHtml(tName)}', '')">${total} जना</span></td>
                 </tr>`;
@@ -612,7 +556,24 @@
             return true;
         });
 
-        currentlyDisplayedRecords = filteredRecords;
+        currentlyDisplayedRecords = filteredRecords.map(item => {
+            let copiedItem = { ...item };
+            if (selectedTraining) {
+                let regularTrainings = (item.trainingDetails || '').split(',').map(s => s.trim());
+                let mobileTrainings = (item.mobileTraining || '').split(',').map(s => s.trim());
+                
+                let matchedReg = regularTrainings.filter(t => t.toLowerCase() === selectedTraining.toLowerCase());
+                let matchedMob = mobileTrainings.filter(t => t.toLowerCase() === selectedTraining.toLowerCase());
+
+                if (matchedReg.length > 0) copiedItem.trainingDetails = matchedReg.join(', ');
+                else copiedItem.trainingDetails = '-';
+
+                if (matchedMob.length > 0) copiedItem.mobileTraining = matchedMob.join(', ');
+                else copiedItem.mobileTraining = '-';
+            }
+            return copiedItem;
+        });
+
         document.getElementById('recordCount').innerText = currentlyDisplayedRecords.length;
 
         if (currentlyDisplayedRecords.length === 0) {
@@ -627,7 +588,7 @@
                     <td>${index + 1}</td>
                     <td><b>${escapeHtml(item.compCode)}</b></td>
                     <td>${escapeHtml(item.pmisNo)}</td>
-                    <td><span class="status-badge">${escapeHtml(item.rank)}</span></td>
+                    <td>${escapeHtml(item.rank)}</td>
                     <td><b>${escapeHtml(item.fullname)}</b></td>
                     <td>${escapeHtml(item.darbandi)}</td>
                     <td>${escapeHtml(item.workingPlace)}</td>
@@ -639,7 +600,7 @@
                     <td>${escapeHtml(item.mobileTraining)}</td>
                     <td>${escapeHtml(item.phone)}</td>
                     <td>${escapeHtml(item.relativePhone)}</td>
-                    <td class="no-print" style="text-align:center;">
+                    <td class="no-print">
                         <button class="btn btn-warning" style="padding:3px 6px; font-size:11px;" onclick="editRecord('${item.id}')" title="सच्याउनुहोस्"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button class="btn btn-danger" style="padding:3px 6px; font-size:11px;" onclick="deleteRecord('${item.id}')" title="हटाउनुहोस्"><i class="fa-solid fa-trash"></i></button>
                     </td>
@@ -648,19 +609,26 @@
         tbody.innerHTML = html;
     }
 
+    function deleteRecord(id) {
+        if (confirm("के तपाईं यो प्रहरी कर्मचारीको विवरण पक्का हटाउन चाहनुहुन्छ?")) {
+            staffRecords = staffRecords.filter(r => String(r.id) !== String(id));
+            saveData();
+        }
+    }
+
     document.getElementById('recordForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const recordId = document.getElementById('editRecordId').value;
         const compCodeVal = document.getElementById('compCode').value.trim();
 
-        let rawPmis = document.getElementById('pmisNo').value.trim();
-        let formattedPmis = rawPmis ? (rawPmis.toUpperCase().startsWith('C-') ? rawPmis.toUpperCase() : 'C-' + rawPmis) : '';
-
-        if (isDuplicateRecord(compCodeVal, formattedPmis, recordId)) {
-            alert(`त्रुटि: यो कम्प्युटर कोड वा संकेत नम्बर पहिल्यै दर्ता भइसकेको छ!`);
+        if (isComputerCodeExists(compCodeVal, recordId)) {
+            alert(`त्रुटि: कम्प्युटर कोड "${compCodeVal}" पहिल्यै दर्ता भइसकेको छ! कृपया अर्को कोड प्रयोग गर्नुहोस्।`);
             document.getElementById('compCode').focus();
             return;
         }
+
+        let rawPmis = document.getElementById('pmisNo').value.trim();
+        let formattedPmis = rawPmis.toUpperCase().startsWith('C-') ? rawPmis.toUpperCase() : 'C-' + rawPmis;
 
         const recordObj = {
             id: recordId ? recordId : generateUniqueId(),
@@ -683,10 +651,8 @@
         if (recordId) {
             const idx = staffRecords.findIndex(r => String(r.id) === String(recordId));
             if (idx !== -1) staffRecords[idx] = recordObj;
-            showToast("विवरण सफलतापूर्वक अद्यावधिक (Update) भयो!");
         } else {
             staffRecords.unshift(recordObj);
-            showToast("नयाँ विवरण सफलतापूर्वक सुरक्षित भयो!");
         }
 
         saveData();
@@ -744,14 +710,6 @@
         document.getElementById('cancelBtn').style.display = 'none';
     }
 
-    function deleteRecord(id) {
-        if (confirm("के तपाईं यो प्रहरी कर्मचारीको विवरण पक्का हटाउन चाहनुहुन्छ?")) {
-            staffRecords = staffRecords.filter(r => String(r.id) !== String(id));
-            saveData();
-            showToast("विवरण सफलतापूर्वक हटाइयो!");
-        }
-    }
-
     function clearFilters() {
         document.getElementById('searchInput').value = '';
         document.getElementById('trainingFilter').value = '';
@@ -787,8 +745,8 @@
 
         const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Training Records");
-        XLSX.writeFile(workbook, "Police_Training_Records.xlsx");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Training Records");
+        XLSX.writeFile(workbook, "Training_Filtered_Records.xlsx");
     }
 
     function triggerExcelImport() { document.getElementById('excelFileInput').click(); }
@@ -834,7 +792,7 @@
                 });
 
                 saveData();
-                showToast(`${count} वटा डाटा सफलतापुर्वक अपलोड भयो!`);
+                alert(`${count} वटा डाटा सफलतापुर्वक अपलोड भयो!`);
             } catch (err) {
                 alert("फाइल इम्पोर्ट गर्न सकिएन। ढाँचा जाँच गर्नुहोस्।");
             }
@@ -865,7 +823,7 @@
                 if (Array.isArray(data)) {
                     staffRecords = data;
                     saveData();
-                    showToast("डाटा सफलतापूर्वक रिस्टोर भयो!");
+                    alert("डाटा सफलतापूर्वक रिस्टोर भयो!");
                 } else {
                     alert("अमान्य JSON ढाँचा!");
                 }
