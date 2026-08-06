@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>प्रहरी कर्मचारी तालिम अभिलेख प्रणाली</title>
+  <title>प्रहरी कर्मचारी डिजिटल अभिलेख प्रणाली - काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २</title>
     <!-- FontAwesome र SheetJS (XLSX) लाइब्रेरीहरू -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -215,7 +215,7 @@
             fetchDataFromGoogleSheet(); // गुगल सिटबाट डाटा लोड गर्ने
         }
 
-        // गुगल सिटबाट डाटा ल्याउने फंक्सन
+        // गुगल सिटबाट डाटा ल्याउने फंक्सन (Cloud Sync)
         function fetchDataFromGoogleSheet() {
             if (!scriptUrl) {
                 refreshUI();
@@ -224,18 +224,13 @@
             fetch(scriptUrl)
                 .then(response => response.json())
                 .then(data => {
-                    if (Array.isArray(data) && data.length > 0) {
+                    if (Array.isArray(data)) {
                         staffRecords = data;
-                        localStorage.setItem('police_records_v4', JSON.stringify(staffRecords));
-                    } else {
-                        // यदि सिट खाली छ भने लोकलस्टोरेजको डाटा लिने
-                        staffRecords = JSON.parse(localStorage.getItem('police_records_v4')) || [];
                     }
                     refreshUI();
                 })
                 .catch(error => {
                     console.error('Google Sheet Fetch Error:', error);
-                    staffRecords = JSON.parse(localStorage.getItem('police_records_v4')) || [];
                     refreshUI();
                 });
         }
@@ -264,11 +259,6 @@
 
         function generateUniqueId() {
             return 'rec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-        }
-
-        function saveData() {
-            localStorage.setItem('police_records_v4', JSON.stringify(staffRecords));
-            refreshUI();
         }
 
         function refreshUI() {
@@ -458,6 +448,7 @@
             }
 
             const recordObj = {
+                action: recordId ? "update" : "insert",
                 id: recordId ? recordId : generateUniqueId(),
                 compCode: compCodeVal,
                 pmisNo: formattedPmis,
@@ -475,26 +466,30 @@
                 mobileTraining: document.getElementById('mobileTraining').value.trim()
             };
 
-            if (recordId) {
-                const idx = staffRecords.findIndex(r => String(r.id) === String(recordId));
-                if (idx !== -1) staffRecords[idx] = recordObj;
-                showToast("विवरण सफलतापूर्वक अद्यावधिक (Update) भयो!");
-            } else {
-                staffRecords.unshift(recordObj);
-                showToast("नयाँ विवरण सफलतापूर्वक सुरक्षित भयो!");
-            }
+            showToast("डाटा सेभ हुँदैछ, कृपया पर्खनुहोस्...");
 
-            saveData();
-            resetForm();
-
-            // गुगल सिटमा पठाउने (Sync)
+            // गुगल सिटमा पठाउने (Cloud Sync) र तुरुन्तै डाटा रिफ्रेस गर्ने
             if (scriptUrl) {
                 fetch(scriptUrl, {
                     method: "POST",
                     mode: "no-cors",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(recordObj)
-                }).catch(error => console.error('Apps Script Sync Error:', error));
+                }).then(() => {
+                    if (recordId) {
+                        const idx = staffRecords.findIndex(r => String(r.id) === String(recordId));
+                        if (idx !== -1) staffRecords[idx] = recordObj;
+                        showToast("विवरण सफलतापूर्वक अद्यावधिक (Update) भयो!");
+                    } else {
+                        staffRecords.unshift(recordObj);
+                        showToast("नयाँ विवरण सफलतापूर्वक सुरक्षित भयो!");
+                    }
+                    resetForm();
+                    setTimeout(fetchDataFromGoogleSheet, 1500); // सिटबाट ताजा डाटा फेरि तानेर देखाउने
+                }).catch(error => {
+                    console.error('Apps Script Sync Error:', error);
+                    showToast("डाटा सेभ गर्न समस्या भयो!");
+                });
             }
         });
 
@@ -540,9 +535,23 @@
 
         function deleteRecord(id) {
             if (confirm("के तपाईं यो प्रहरी कर्मचारीको विवरण पक्का हटाउन चाहनुहुन्छ?")) {
-                staffRecords = staffRecords.filter(r => String(r.id) !== String(id));
-                saveData();
-                showToast("विवरण सफलतापूर्वक हटाइयो!");
+                const deleteObj = { action: "delete", id: id };
+                
+                showToast("डाटा हटाइँदैछ...");
+                
+                fetch(scriptUrl, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(deleteObj)
+                }).then(() => {
+                    staffRecords = staffRecords.filter(r => String(r.id) !== String(id));
+                    showToast("विवरण सफलतापूर्वक हटाइयो!");
+                    setTimeout(fetchDataFromGoogleSheet, 1500);
+                }).catch(error => {
+                    console.error('Delete Error:', error);
+                    showToast("डाटा हटाउन सकिएन!");
+                });
             }
         }
 
