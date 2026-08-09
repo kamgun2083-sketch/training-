@@ -685,11 +685,12 @@
     // सुरुमा पेज लोड हुँदा ड्रपडाउन इनिसलाइज गर्ने
     initRankFilterDropdown();
     refreshUI();
-</script>
+
 
     function editRecord(id) {
         const item = staffRecords.find(r => String(r.id) === String(id));
         if (!item) return;
+    } 
 
         document.getElementById('editRecordId').value = item.id;
         document.getElementById('compCode').value = item.compCode || '';
