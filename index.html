@@ -540,7 +540,7 @@
         document.getElementById('recordsSection').scrollIntoView({ behavior: 'smooth' });
     }
 
-    function renderTable() {
+   function renderTable() {
         const tbody = document.getElementById('tableBody');
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const selectedTraining = document.getElementById('trainingFilter').value.trim();
@@ -561,6 +561,21 @@
             }
             return true;
         });
+
+        // ==========================================
+        // दर्जाको क्रम अनुसार मिलाउने कोड (Sorting) यहाँ थप्ने:
+        // ==========================================
+        filteredRecords.sort((a, b) => {
+            let indexA = ranksList.indexOf(a.rank);
+            let indexB = ranksList.indexOf(b.rank);
+            
+            // यदि सूचीमा नभएको दर्जा भए पछाडि पठाउने
+            if (indexA === -1) indexA = 999;
+            if (indexB === -1) indexB = 999;
+            
+            return indexA - indexB;
+        });
+        // ==========================================
 
         currentlyDisplayedRecords = filteredRecords.map(item => {
             let copiedItem = { ...item };
