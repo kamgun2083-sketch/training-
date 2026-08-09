@@ -1,13 +1,11 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ne">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>प्रहरी कर्मचारी डिजिटल अभिलेख प्रणाली - काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २</title>
     
-    <!-- नेपाल प्रहरीको लोगो Favicon को रूपमा राखिएको -->
     <link rel="icon" type="image/png" href="my-logo.png">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
@@ -103,7 +101,6 @@
         tbody tr:nth-child(even) { background-color: #f8fafc; }
         tbody tr:hover { background-color: #e0f2fe; }
 
-        /* तालिम विवरणको लामो टेक्स्टलाई चिटिक्क राख्न (Ellipsis/Clamped effect) */
         .truncated-cell {
             max-width: 180px;
             overflow: hidden;
@@ -116,7 +113,6 @@
         .clickable-cell:hover { color: #1e40af; background-color: #eff6ff; }
         .total-badge { background-color: #dcfce7; color: #15803d; padding: 3px 10px; border-radius: 4px; font-weight: 700; cursor: pointer; display: inline-block; text-align: center; }
 
-        /* Login Modal Styles */
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.85); display: flex; justify-content: center; align-items: center; z-index: 9999;
@@ -205,42 +201,28 @@
 </div>
 
 <div class="container" id="mainContainer" style="display: none;">
-    <header style="display: flex; align-items: center; justify-content: space-between; text-align: center; border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 20px; width: 100%;">
+    <header>
+        <img src="my-logo.png" class="header-logo-img" alt="नेपाल प्रहरी लोगो">
+        <h1>काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २ महाराजगञ्ज</h1>
+        <h2>प्रहरी कर्मचारीहरूको तालिम तथा व्यक्तिगत डिजिटल अभिलेख प्रणाली</h2>
         
-        <!-- बायाँ साइडको लोगो -->
-        <div style="flex-shrink: 0;">
-            <img src="my-logo.png" id="headerLogoImg" class="header-logo-img" alt="नेपाल प्रहरी लोगो" style="width: 85px; height: 85px; object-fit: contain;">
-        </div>
-
-        <!-- बीचको शीर्षक -->
-        <div style="flex-grow: 1; text-align: center; margin: 0 15px;">
-            <h1 style="font-size: 18px; margin: 0 0 5px 0;">काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २ महाराजगञ्ज</h1>
-            <h2 style="font-size: 15px; margin: 0; font-weight: normal;">प्रहरी कर्मचारीहरूको तालिम तथा व्यक्तिगत डिजिटल अभिलेख प्रणाली</h2>
-        </div>
-
-        <!-- दायाँ साइडको झण्डा (दायाँ किनारामा बस्ने पक्का गराइएको) -->
-        <div style="flex-shrink: 0; margin-left: auto;">
-            <img src="Animated-Flag-Nepal.png" alt="नेपालको झण्डा" style="width: 75px; height: 75px; object-fit: contain;">
-        </div>
-
-     </header>
         <div class="action-buttons no-print">
             <button class="btn btn-excel" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Excel डाउनलोड (.xlsx)</button>
-            <button class="btn btn-import" onclick="triggerExcelImport()"><i class="fa-solid fa-file-upload"></i> Excel (.xlsx/.xls) अपलोड</button>
+            <button class="btn btn-import" onclick="triggerExcelImport()"><i class="fa-solid fa-file-upload"></i> Excel अपलोड</button>
             <button class="btn btn-backup" onclick="exportJSONBackup()"><i class="fa-solid fa-download"></i> JSON ब्याकअप</button>
-            <button class="btn btn-restore" onclick="triggerRestore()"><i class="fa-solid fa-upload"></i> रिस्टोर (Restore)</button>
+            <button class="btn btn-restore" onclick="triggerRestore()"><i class="fa-solid fa-upload"></i> रिस्टोर</button>
             <button class="btn btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> प्रिन्ट / PDF</button>
 
             <input type="file" id="restoreFileInput" accept=".json" onchange="importJSONBackup(event)">
             <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" onchange="importExcelFile(event)">
         </div>
-   
+    </header>
 
     <!-- Entry Form Panel -->
     <div class="panel no-print">
         <div class="panel-title">
             <span id="formHeaderTitle"><i class="fa-solid fa-user-plus"></i> नयाँ प्रहरी कर्मचारीको विवरण प्रविष्टि</span>
-            <span id="editBadge" class="status-badge" style="display: none; cursor:default; background:#fef3c7; color:#92400e;">संशोधन मोड</span>
+            <span id="editBadge" class="status-badge" style="display: none; background:#fef3c7; color:#92400e;">संशोधन मोड</span>
         </div>
         <form id="recordForm">
             <input type="hidden" id="editRecordId" value="">
@@ -306,7 +288,7 @@
                 </div>
                 <div class="form-group">
                     <label>सम्पर्क नम्बर *:</label>
-                    <input type="tel" id="phone" placeholder="98XXXXXXXX" pattern="[9][6-8][0-9]{8}" required>
+                    <input type="tel" id="phone" placeholder="98XXXXXXXX" required>
                 </div>
                 <div class="form-group">
                     <label>आफन्तको सम्पर्क नम्बर:</label>
@@ -409,7 +391,6 @@
 </div>
 
 <script>
-    // सुरक्षा पासवर्ड
     const SYSTEM_PASSWORD = "gun123";
     const scriptUrl = "https://script.google.com/macros/s/AKfycbzNUIktts_Rs1cuvotBIb6fYLP6gk8OEJBRZNnHB2kCXMbi9mu9moa5ZTVZiWbdgu_7/exec";
 
@@ -418,7 +399,7 @@
         if (inputVal === SYSTEM_PASSWORD) {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'block';
-            fetchCloudData(); // क्लाउडबाट डाटा लोड गर्ने
+            fetchCloudData(); // क्लाउडबाट लाइभ डाटा तान्ने
         } else {
             document.getElementById('loginErrorMsg').style.display = 'block';
             document.getElementById('loginPasswordInput').value = '';
@@ -427,14 +408,11 @@
     }
 
     document.getElementById('loginPasswordInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            checkPassword();
-        }
+        if (e.key === 'Enter') checkPassword();
     });
 
     let staffRecords = JSON.parse(localStorage.getItem('police_records_v4')) || [];
     let currentlyDisplayedRecords = [];
-
     const ranksList = ["प्रउ", "प्रनाउ", "प्रनि", "प्रवनानि", "प्रनानि", "प्रसनि", "प्रवह", "प्रह", "प्रसह", "प्रज", "प्रकास"];
 
     function initRankFilterDropdown() {
@@ -477,9 +455,7 @@
         let cleanCode = String(compCode).trim();
         if (!cleanCode) return false;
         return staffRecords.some(r => {
-            if (currentRecordId && String(r.id) === String(currentRecordId)) {
-                return false;
-            }
+            if (currentRecordId && String(r.id) === String(currentRecordId)) return false;
             return String(r.compCode).trim() === cleanCode;
         });
     }
@@ -591,11 +567,8 @@
                 let matchedReg = regularTrainings.filter(t => t.toLowerCase() === selectedTraining.toLowerCase());
                 let matchedMob = mobileTrainings.filter(t => t.toLowerCase() === selectedTraining.toLowerCase());
 
-                if (matchedReg.length > 0) copiedItem.trainingDetails = matchedReg.join(', ');
-                else copiedItem.trainingDetails = '-';
-
-                if (matchedMob.length > 0) copiedItem.mobileTraining = matchedMob.join(', ');
-                else copiedItem.mobileTraining = '-';
+                copiedItem.trainingDetails = matchedReg.length > 0 ? matchedReg.join(', ') : '-';
+                copiedItem.mobileTraining = matchedMob.length > 0 ? matchedMob.join(', ') : '-';
             }
             return copiedItem;
         });
@@ -639,6 +612,7 @@
         if (confirm("के तपाईं यो प्रहरी कर्मचारीको विवरण पक्का हटाउन चाहनुहुन्छ?")) {
             staffRecords = staffRecords.filter(r => String(r.id) !== String(id));
             saveData();
+            // क्लाउडमा पनि सिङ्क गर्ने वा सर्भरबाट अपडेट गर्न सकिन्छ
         }
     }
 
@@ -648,7 +622,7 @@
         const compCodeVal = document.getElementById('compCode').value.trim();
 
         if (isComputerCodeExists(compCodeVal, recordId)) {
-            alert(`त्रुटि: कम्प्युटर कोड "${compCodeVal}" पहिल्यै दर्ता भइसकेको छ! कृपया अर्को कोड प्रयोग गर्नुहोस्।`);
+            alert(`त्रुटि: कम्प्युटर कोड "${compCodeVal}" पहिल्यै दर्ता भइसकेको छ!`);
             document.getElementById('compCode').focus();
             return;
         }
@@ -684,16 +658,16 @@
         saveData();
         resetForm();
 
-        // Google Apps Script Web URL Integration
+        // गुगल शीट क्लाउडमा डेटा पठाउने (Sync)
         fetch(scriptUrl, {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(recordObj)
-        }).catch(error => console.error('Apps Script Sync Error:', error));
+        }).catch(error => console.error('Cloud Sync Error:', error));
     });
 
-    // क्लाउड (Google Sheets) बाट डाटा फेच गर्ने फंक्सन
+    // क्लाउडबाट डाटा फेच गर्ने फंक्सन (जुनसुकै डिभाइसबाट हेर्न मिल्ने बनाउन)
     function fetchCloudData() {
         fetch(scriptUrl)
             .then(res => res.json())
@@ -714,9 +688,7 @@
         document.getElementById('compCode').value = item.compCode || '';
         
         let pmisClean = item.pmisNo || '';
-        if (pmisClean.toUpperCase().startsWith('C-')) {
-            pmisClean = pmisClean.substring(2);
-        }
+        if (pmisClean.toUpperCase().startsWith('C-')) pmisClean = pmisClean.substring(2);
         document.getElementById('pmisNo').value = pmisClean;
 
         document.getElementById('rank').value = item.rank || '';
@@ -757,11 +729,7 @@
 
     function exportExcel() {
         const recordsToExport = currentlyDisplayedRecords.length > 0 ? currentlyDisplayedRecords : staffRecords;
-        
-        if (recordsToExport.length === 0) {
-            alert("निर्यात गर्नको लागि कुनै डाटा छैन।");
-            return;
-        }
+        if (recordsToExport.length === 0) { alert("निर्यात गर्नको लागि कुनै डाटा छैन।"); return; }
 
         const dataForExcel = recordsToExport.map((r, index) => ({
             "क्र.सं.": index + 1,
@@ -783,8 +751,8 @@
 
         const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Training Records");
-        XLSX.writeFile(workbook, "Training_Filtered_Records.xlsx");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Training Records");
+        XLSX.writeFile(workbook, "Police_Records.xlsx");
     }
 
     function triggerExcelImport() { document.getElementById('excelFileInput').click(); }
@@ -832,7 +800,7 @@
                 saveData();
                 alert(`${count} वटा डाटा सफलतापुर्वक अपलोड भयो!`);
             } catch (err) {
-                alert("फाइल इम्पोर्ट गर्न सकिएन। ढाँचा जाँच गर्नुहोस्।");
+                alert("फाइल इम्पोर्ट गर्न सकिएन।");
             }
             event.target.value = '';
         };
@@ -840,10 +808,7 @@
     }
 
     function exportJSONBackup() {
-        if (staffRecords.length === 0) {
-            alert("ब्याकअप लिनको लागि कुनै डाटा छैन।");
-            return;
-        }
+        if (staffRecords.length === 0) { alert("ब्याकअप लिनको लागि कुनै डाटा छैन।"); return; }
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(staffRecords, null, 2));
         const a = document.createElement('a');
         a.href = dataStr;
