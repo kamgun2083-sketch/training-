@@ -667,18 +667,25 @@
         }).catch(error => console.error('Cloud Sync Error:', error));
     });
 
-    // क्लाउडबाट डाटा फेच गर्ने फंक्सन (जुनसुकै डिभाइसबाट हेर्न मिल्ने बनाउन)
+    // क्लाउडबाट लाइभ डाटा तान्ने फंक्सन
     function fetchCloudData() {
         fetch(scriptUrl)
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data) && data.length > 0) {
-                    staffRecords = data;
-                    saveData();
+            .then(response => response.json())
+            .then(cloudData => {
+                if (Array.isArray(cloudData) && cloudData.length > 0) {
+                    // यदि गुगल सिटमा डाटा छ भने त्यसलाई मुख्य डाटा बनाउने र LocalStorage मा अपडेट गर्ने
+                    staffRecords = cloudData;
+                    localStorage.setItem('police_records_v4', JSON.stringify(staffRecords));
+                    refreshUI();
                 }
             })
-            .catch(err => console.log('Cloud fetch fallback to local storage:', err));
+            .catch(error => console.error('Cloud Fetch Error:', error));
     }
+
+    // सुरुमा पेज लोड हुँदा ड्रपडाउन इनिसलाइज गर्ने
+    initRankFilterDropdown();
+    refreshUI();
+</script>
 
     function editRecord(id) {
         const item = staffRecords.find(r => String(r.id) === String(id));
