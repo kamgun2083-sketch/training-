@@ -157,10 +157,14 @@
             margin: 8mm;
         }
 
-        @media print { 
-            .no-print { display: none !important; } 
+       @media print { 
+            /* प्रिन्ट गर्दा लुकाउने कुराहरू */
+            .no-print, header, .panel:not(#recordsSection), footer { display: none !important; } 
+            
             body { padding: 0; background: white; font-size: 10px; } 
-            .panel { border: none; box-shadow: none; padding: 0; margin-bottom: 10px; }
+            
+            /* सिर्फ दर्ता अभिलेख सूची मात्र देखाउने र फुल साइजमा राख्ने */
+            #recordsSection { border: none; box-shadow: none; padding: 0; margin: 0; width: 100%; }
             .table-responsive { max-height: none; overflow: visible; border: none; }
             table { font-size: 10px; width: 100%; page-break-inside: auto; }
             tr { page-break-inside: avoid; page-break-after: auto; }
