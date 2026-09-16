@@ -46,6 +46,40 @@
         header h1 { font-size: 20px; margin-bottom: 5px; }
         header h2 { font-size: 15px; font-weight: 400; color: #93c5fd; margin-bottom: 8px; }
 
+        /* Navigation Menu Bar */
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #e2e8f0;
+            color: #0f172a;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
         .action-buttons { margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .btn { padding: 8px 14px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
         .btn-excel { background-color: #16a34a; color: white; }
@@ -158,36 +192,14 @@
         }
 
        @media print { 
-            /* प्रिन्ट गर्दा लुकाउने कुराहरू */
-            .no-print, header, .panel:not(#recordsSection), footer { display: none !important; } 
-            
+            .no-print, header, .nav-menu, .panel:not(#recordsSection), footer { display: none !important; } 
             body { padding: 0; background: white; font-size: 10px; } 
-            
-            /* सिर्फ कार्यरत प्रहरी कर्मचारी मात्र देखाउने र फुल साइजमा राख्ने */
-            #recordsSection { border: none; box-shadow: none; padding: 0; margin: 0; width: 100%; }
+            #recordsSection { border: none; box-shadow: none; padding: 0; margin: 0; width: 100%; display: block !important; }
             .table-responsive { max-height: none; overflow: visible; border: none; }
             table { font-size: 10px; width: 100%; page-break-inside: auto; }
             tr { page-break-inside: avoid; page-break-after: auto; }
             th, td { padding: 4px 6px; }
             .truncated-cell { max-width: none; white-space: normal; }
-            
-            footer {
-                background: none !important;
-                color: #1e3a8a !important;
-                border-top: 2px solid #1e3a8a !important;
-                border-radius: 0 !important;
-                margin-top: 15px !important;
-                padding: 10px 0 !important;
-                font-size: 11px !important;
-                box-shadow: none !important;
-            }
-            .designer-name {
-                background: none !important;
-                color: #0f172a !important;
-                border: none !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-            }
         }
     </style>
 </head>
@@ -222,166 +234,190 @@
         </div>
     </header>
 
-    <!-- Entry Form Panel -->
-    <div class="panel no-print">
-        <div class="panel-title">
-            <span id="formHeaderTitle"><i class="fa-solid fa-user-plus"></i> नयाँ प्रहरी कर्मचारीको विवरण प्रविष्टि</span>
-            <span id="editBadge" class="status-badge" style="display: none; background:#fef3c7; color:#92400e;">संशोधन मोड</span>
-        </div>
-        <form id="recordForm">
-            <input type="hidden" id="editRecordId" value="">
+    <!-- Navigation Menu -->
+    <div class="nav-menu no-print">
+        <button class="nav-btn active" onclick="switchTab('home')"><i class="fa-solid fa-house"></i> होम पेज</button>
+        <button class="nav-btn" onclick="switchTab('form')"><i class="fa-solid fa-user-plus"></i> फारम मात्र भर्ने पेज</button>
+        <button class="nav-btn" onclick="switchTab('summary')"><i class="fa-solid fa-chart-pie"></i> तालिमगत तथा दर्जागत संख्यात्मक तथ्याङ्क (Summary)</button>
+        <button class="nav-btn" onclick="switchTab('records')"><i class="fa-solid fa-users"></i> कार्यरत प्रहरी कर्मचारी (<span id="navRecordCount">0</span> जना)</button>
+    </div>
 
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>कम्प्युटर कोड *:</label>
-                    <input type="text" id="compCode" placeholder="उदा: 371209" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>संकेत नम्बर *:</label>
-                    <div class="prefix-input-group">
-                        <span class="prefix-addon">C-</span>
-                        <input type="text" id="pmisNo" placeholder="001412" required>
+    <!-- 1. HOME PAGE SECTION -->
+    <div id="tabHome" class="tab-content">
+        <div class="panel">
+            <div class="panel-title">
+                <span><i class="fa-solid fa-house-chimney"></i> गृहपृष्ठ (Dashboard)</span>
+            </div>
+            <p style="color: #475569; line-height: 1.6;">काठमाडौँ उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २ को डिजिटल अभिलेख तथा तालिम व्यवस्थापन प्रणालीमा यहाँलाई हार्दिक स्वागत छ। माथि दिइएको मेनु बार (Navigation Bar) प्रयोग गरी नयाँ विवरण प्रविष्टि गर्ने, तालिमगत तथ्याङ्क तथा कार्यरत कर्मचारीहरूको सूची हेर्न सक्नुहुनेछ।</p>
+        </div>
+    </div>
+
+    <!-- 2. ENTRY FORM SECTION -->
+    <div id="tabForm" class="tab-content" style="display: none;">
+        <div class="panel">
+            <div class="panel-title">
+                <span id="formHeaderTitle"><i class="fa-solid fa-user-plus"></i> नयाँ प्रहरी कर्मचारीको विवरण प्रविष्टि</span>
+                <span id="editBadge" class="status-badge" style="display: none; background:#fef3c7; color:#92400e;">संशोधन मोड</span>
+            </div>
+            <form id="recordForm">
+                <input type="hidden" id="editRecordId" value="">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>कम्प्युटर कोड *:</label>
+                        <input type="text" id="compCode" placeholder="उदा: 371209" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>संकेत नम्बर *:</label>
+                        <div class="prefix-input-group">
+                            <span class="prefix-addon">C-</span>
+                            <input type="text" id="pmisNo" placeholder="001412" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>दर्जा *:</label>
+                        <select id="rank" required>
+                            <option value="">दर्जा छान्नुहोस्</option>
+                            <option value="प्रउ">प्रउ</option>
+                            <option value="प्रनाउ">प्रनाउ</option>
+                            <option value="प्रनि">प्रनि</option>
+                            <option value="प्रवनानि">प्रवनानि</option>
+                            <option value="प्रनानि">प्रनानि</option>
+                            <option value="प्रसनि">प्रसनि</option>
+                            <option value="प्रवह">प्रवह</option>
+                            <option value="प्रह">प्रह</option>
+                            <option value="प्रसह">प्रसह</option>
+                            <option value="प्रज">प्रज</option>
+                            <option value="प्रकास">प्रकास</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>नाम/थर *:</label>
+                        <input type="text" id="fullname" placeholder="पुरा नाम लेख्नुहोस्" required>
+                    </div>
+                    <div class="form-group">
+                        <label>दरबन्दी *:</label>
+                        <input type="text" id="darbandi" placeholder="दरबन्दी स्थान" required>
+                    </div>
+                    <div class="form-group">
+                        <label>कार्यरत स्थान (फिल्ड) *:</label>
+                        <input type="text" id="workingPlace" placeholder="हाल खटिएको स्थान" required>
+                    </div>
+                    <div class="form-group">
+                        <label>भर्ना मिति (नेपाली BS) *:</label>
+                        <input type="text" id="joinDate" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>बढुवा मिति (नेपाली BS):</label>
+                        <input type="text" id="promotionDate" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}">
+                    </div>
+                    <div class="form-group">
+                        <label>जन्म मिति (नेपाली BS) *:</label>
+                        <input type="text" id="dob" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>शैक्षिक योग्यता *:</label>
+                        <input type="text" id="education" placeholder="+2 / B.A." required>
+                    </div>
+                    <div class="form-group">
+                        <label>सम्पर्क नम्बर *:</label>
+                        <input type="tel" id="phone" placeholder="98XXXXXXXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label>आफन्तको सम्पर्क नम्बर:</label>
+                        <input type="tel" id="relativePhone" placeholder="98XXXXXXXX">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>तालिमको विवरण (कमा/Comma ले छुट्याउनुहोस्):</label>
+                        <input type="text" id="trainingDetails" placeholder="उदा: आधारभूत, विपद् व्यवस्थापन, VIP सुरक्षा">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>घुम्ती तालिम:</label>
+                        <input type="text" id="mobileTraining" placeholder="घुम्ती तालिम विवरण">
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label>दर्जा *:</label>
-                    <select id="rank" required>
-                        <option value="">दर्जा छान्नुहोस्</option>
-                        <option value="प्रउ">प्रउ</option>
-                        <option value="प्रनाउ">प्रनाउ</option>
-                        <option value="प्रनि">प्रनि</option>
-                        <option value="प्रवनानि">प्रवनानि</option>
-                        <option value="प्रनानि">प्रनानि</option>
-                        <option value="प्रसनि">प्रसनि</option>
-                        <option value="प्रवह">प्रवह</option>
-                        <option value="प्रह">प्रह</option>
-                        <option value="प्रसह">प्रसह</option>
-                        <option value="प्रज">प्रज</option>
-                        <option value="प्रकास">प्रकास</option>
-                    </select>
+                <div style="margin-top: 15px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" id="cancelBtn" class="btn btn-cancel" style="display: none;" onclick="resetForm()"><i class="fa-solid fa-xmark"></i> रद्द गर्नुहोस्</button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary"><i class="fa-solid fa-save"></i> विवरण सुरक्षित गर्नुहोस्</button>
                 </div>
-                <div class="form-group">
-                    <label>नाम/थर *:</label>
-                    <input type="text" id="fullname" placeholder="पुरा नाम लेख्नुहोस्" required>
-                </div>
-                <div class="form-group">
-                    <label>दरबन्दी *:</label>
-                    <input type="text" id="darbandi" placeholder="दरबन्दी स्थान" required>
-                </div>
-                <div class="form-group">
-                    <label>कार्यरत स्थान (फिल्ड) *:</label>
-                    <input type="text" id="workingPlace" placeholder="हाल खटिएको स्थान" required>
-                </div>
-                <div class="form-group">
-                    <label>भर्ना मिति (नेपाली BS) *:</label>
-                    <input type="text" id="joinDate" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" required>
-                </div>
-                <div class="form-group">
-                    <label>बढुवा मिति (नेपाली BS):</label>
-                    <input type="text" id="promotionDate" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}">
-                </div>
-                <div class="form-group">
-                    <label>जन्म मिति (नेपाली BS) *:</label>
-                    <input type="text" id="dob" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}" required>
-                </div>
-                <div class="form-group">
-                    <label>शैक्षिक योग्यता *:</label>
-                    <input type="text" id="education" placeholder="+2 / B.A." required>
-                </div>
-                <div class="form-group">
-                    <label>सम्पर्क नम्बर *:</label>
-                    <input type="tel" id="phone" placeholder="98XXXXXXXX" required>
-                </div>
-                <div class="form-group">
-                    <label>आफन्तको सम्पर्क नम्बर:</label>
-                    <input type="tel" id="relativePhone" placeholder="98XXXXXXXX">
-                </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label>तालिमको विवरण (कमा/Comma ले छुट्याउनुहोस्):</label>
-                    <input type="text" id="trainingDetails" placeholder="उदा: आधारभूत, विपद् व्यवस्थापन, VIP सुरक्षा">
-                </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label>घुम्ती तालिम:</label>
-                    <input type="text" id="mobileTraining" placeholder="घुम्ती तालिम विवरण">
-                </div>
-            </div>
-            <div style="margin-top: 15px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" id="cancelBtn" class="btn btn-cancel" style="display: none;" onclick="resetForm()"><i class="fa-solid fa-xmark"></i> रद्द गर्नुहोस्</button>
-                <button type="submit" id="submitBtn" class="btn btn-primary"><i class="fa-solid fa-save"></i> विवरण सुरक्षित गर्नुहोस्</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Summary Panel -->
-    <div class="panel">
-        <div class="panel-title">
-            <span><i class="fa-solid fa-chart-pie"></i> तालीमगत तथा दर्जागत संख्यात्मक तथ्याङ्क (Summary)</span>
-        </div>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>क्र.सं.</th>
-                        <th>तालिमको नाम</th>
-                        <th style="text-align:center;">प्रउ</th>
-                        <th style="text-align:center;">प्रनाउ</th>
-                        <th style="text-align:center;">प्रनि</th>
-                        <th style="text-align:center;">प्रवनानि</th>
-                        <th style="text-align:center;">प्रनानि</th>
-                        <th style="text-align:center;">प्रसनि</th>
-                        <th style="text-align:center;">प्रवह</th>
-                        <th style="text-align:center;">प्रह</th>
-                        <th style="text-align:center;">प्रसह</th>
-                        <th style="text-align:center;">प्रज</th>
-                        <th style="text-align:center;">प्रकास</th>
-                        <th style="text-align:center;">जम्मा</th>
-                    </tr>
-                </thead>
-                <tbody id="summaryTableBody"></tbody>
-            </table>
+            </form>
         </div>
     </div>
 
-    <!-- Records Table Panel -->
-    <div class="panel" id="recordsSection">
-        <div class="controls no-print" style="margin-bottom: 12px;">
-            <div class="panel-title" style="border:none; margin:0; padding:0;">
-                <span><i class="fa-solid fa-list"></i> कार्यरत प्रहरी कर्मचारी (<span id="recordCount">0</span> जना)</span>
+    <!-- 3. SUMMARY SECTION -->
+    <div id="tabSummary" class="tab-content" style="display: none;">
+        <div class="panel">
+            <div class="panel-title">
+                <span><i class="fa-solid fa-chart-pie"></i> तालीमगत तथा दर्जागत संख्यात्मक तथ्याङ्क (Summary)</span>
             </div>
-            <div class="filter-group">
-                <select id="trainingFilter" onchange="renderTable()"><option value="">-- सबै तालिम --</option></select>
-                <select id="rankFilter" onchange="renderTable()"><option value="">-- सबै दर्जा --</option></select>
-                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 खोजी गर्नुहोस्..." style="width:180px;">
-                <button class="btn btn-cancel" onclick="clearFilters()"><i class="fa-solid fa-rotate-left"></i> रिसेट</button>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>क्र.सं.</th>
+                            <th>तालिमको नाम</th>
+                            <th style="text-align:center;">प्रउ</th>
+                            <th style="text-align:center;">प्रनाउ</th>
+                            <th style="text-align:center;">प्रनि</th>
+                            <th style="text-align:center;">प्रवनानि</th>
+                            <th style="text-align:center;">प्रनानि</th>
+                            <th style="text-align:center;">प्रसनि</th>
+                            <th style="text-align:center;">प्रवह</th>
+                            <th style="text-align:center;">प्रह</th>
+                            <th style="text-align:center;">प्रसह</th>
+                            <th style="text-align:center;">प्रज</th>
+                            <th style="text-align:center;">प्रकास</th>
+                            <th style="text-align:center;">जम्मा</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody"></tbody>
+                </table>
             </div>
         </div>
+    </div>
 
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>क्र.सं.</th>
-                        <th>कम्प्युटर कोड</th>
-                        <th>संकेत नं.</th>
-                        <th>दर्जा</th>
-                        <th>नाम/थर</th>
-                        <th>दरबन्दी</th>
-                        <th>कार्यरत स्थान</th>
-                        <th>भर्ना मिति</th>
-                        <th>बढुवा मिति</th>
-                        <th>जन्म मिति</th>
-                        <th>शैक्षिक योग्यता</th>
-                        <th>तालिम विवरण</th>
-                        <th>घुम्ती तालिम</th>
-                        <th>सम्पर्क नं.</th>
-                        <th>आफन्तको नं.</th>
-                        <th class="no-print">कार्य (Actions)</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
+    <!-- 4. RECORDS TABLE SECTION -->
+    <div class="panel tab-content" id="tabRecords" style="display: none;">
+        <div id="recordsSection">
+            <div class="controls no-print" style="margin-bottom: 12px;">
+                <div class="panel-title" style="border:none; margin:0; padding:0;">
+                    <span><i class="fa-solid fa-users"></i> कार्यरत प्रहरी कर्मचारी (<span id="recordCount">0</span> जना)</span>
+                </div>
+                <div class="filter-group">
+                    <select id="trainingFilter" onchange="renderTable()"><option value="">-- सबै तालिम --</option></select>
+                    <select id="rankFilter" onchange="renderTable()"><option value="">-- सबै दर्जा --</option></select>
+                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 खोजी गर्नुहोस्..." style="width:180px;">
+                    <button class="btn btn-cancel" onclick="clearFilters()"><i class="fa-solid fa-rotate-left"></i> रिसेट</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>क्र.सं.</th>
+                            <th>कम्प्युटर कोड</th>
+                            <th>संकेत नं.</th>
+                            <th>दर्जा</th>
+                            <th>नाम/थर</th>
+                            <th>दरबन्दी</th>
+                            <th>कार्यरत स्थान</th>
+                            <th>भर्ना मिति</th>
+                            <th>बढुवा मिति</th>
+                            <th>जन्म मिति</th>
+                            <th>शैक्षिक योग्यता</th>
+                            <th>तालिम विवरण</th>
+                            <th>घुम्ती तालिम</th>
+                            <th>सम्पर्क नं.</th>
+                            <th>आफन्तको नं.</th>
+                            <th class="no-print">कार्य (Actions)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -403,7 +439,7 @@
         if (inputVal === SYSTEM_PASSWORD) {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'block';
-            fetchCloudData(); // क्लाउडबाट लाइभ डाटा तान्ने
+            fetchCloudData(); 
         } else {
             document.getElementById('loginErrorMsg').style.display = 'block';
             document.getElementById('loginPasswordInput').value = '';
@@ -418,6 +454,26 @@
     let staffRecords = JSON.parse(localStorage.getItem('police_records_v4')) || [];
     let currentlyDisplayedRecords = [];
     const ranksList = ["प्रउ", "प्रनाउ", "प्रनि", "प्रवनानि", "प्रनानि", "प्रसनि", "प्रवह", "प्रह", "प्रसह", "प्रज", "प्रकास"];
+
+    // Tab Switching Logic
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+        if (tabId === 'home') {
+            document.getElementById('tabHome').style.display = 'block';
+            document.querySelectorAll('.nav-btn')[0].classList.add('active');
+        } else if (tabId === 'form') {
+            document.getElementById('tabForm').style.display = 'block';
+            document.querySelectorAll('.nav-btn')[1].classList.add('active');
+        } else if (tabId === 'summary') {
+            document.getElementById('tabSummary').style.display = 'block';
+            document.querySelectorAll('.nav-btn')[2].classList.add('active');
+        } else if (tabId === 'records') {
+            document.getElementById('tabRecords').style.display = 'block';
+            document.querySelectorAll('.nav-btn')[3].classList.add('active');
+        }
+    }
 
     function initRankFilterDropdown() {
         const rankSelect = document.getElementById('rankFilter');
@@ -443,6 +499,7 @@
         updateTrainingDropdown();
         renderSummaryTable();
         renderTable();
+        document.getElementById('navRecordCount').innerText = staffRecords.length;
     }
 
     function escapeHtml(str) {
@@ -537,7 +594,7 @@
         document.getElementById('rankFilter').value = rank;
         document.getElementById('searchInput').value = '';
         renderTable();
-        document.getElementById('recordsSection').scrollIntoView({ behavior: 'smooth' });
+        switchTab('records');
     }
 
    function renderTable() {
@@ -562,20 +619,13 @@
             return true;
         });
 
-        // ==========================================
-        // दर्जाको क्रम अनुसार मिलाउने कोड (Sorting) यहाँ थप्ने:
-        // ==========================================
         filteredRecords.sort((a, b) => {
             let indexA = ranksList.indexOf(a.rank);
             let indexB = ranksList.indexOf(b.rank);
-            
-            // यदि सूचीमा नभएको दर्जा भए पछाडि पठाउने
             if (indexA === -1) indexA = 999;
             if (indexB === -1) indexB = 999;
-            
             return indexA - indexB;
         });
-        // ==========================================
 
         currentlyDisplayedRecords = filteredRecords.map(item => {
             let copiedItem = { ...item };
@@ -631,7 +681,6 @@
         if (confirm("के तपाईं यो प्रहरी कर्मचारीको विवरण पक्का हटाउन चाहनुहुन्छ?")) {
             staffRecords = staffRecords.filter(r => String(r.id) !== String(id));
             saveData();
-            // क्लाउडमा पनि सिङ्क गर्ने वा सर्भरबाट अपडेट गर्ने
         }
     }
 
@@ -676,8 +725,9 @@
 
         saveData();
         resetForm();
+        alert("विवरण सफलतापूर्वक सुरक्षित गरियो!");
+        switchTab('records');
 
-        // गुगल शीट क्लाउडमा डेटा पठाउने (Sync)
         fetch(scriptUrl, {
             method: "POST",
             mode: "no-cors",
@@ -686,7 +736,6 @@
         }).catch(error => console.error('Cloud Sync Error:', error));
     });
 
-    // क्लाउडबाट लाइभ डाटा तान्ने फंक्सन
     function fetchCloudData() {
         fetch(scriptUrl)
             .then(response => response.json())
@@ -731,7 +780,8 @@
         document.getElementById('editBadge').style.display = 'inline-block';
         document.getElementById('submitBtn').innerHTML = `<i class="fa-solid fa-rotate"></i> अद्यावधिक गर्नुहोस्`;
         document.getElementById('cancelBtn').style.display = 'inline-flex';
-        document.getElementById('recordForm').scrollIntoView({ behavior: 'smooth' });
+        
+        switchTab('form');
     }
 
     function resetForm() {
@@ -858,11 +908,6 @@
         };
         if (event.target.files[0]) fileReader.readAsText(event.target.files[0]);
     }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        initRankFilterDropdown();
-        refreshUI();
-    });
 </script>
 
 </body>
