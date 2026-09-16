@@ -50,7 +50,7 @@
         .nav-menu {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 15px;
             background: #ffffff;
             padding: 10px;
@@ -64,14 +64,14 @@
             background: #e2e8f0;
             color: #0f172a;
             border: none;
-            padding: 8px 16px;
+            padding: 7px 12px;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 13px;
+            gap: 5px;
+            font-size: 12px;
             transition: all 0.2s;
         }
 
@@ -212,9 +212,9 @@
         }
 
        @media print { 
-            .no-print, header, .nav-menu, .panel:not(#recordsSection), footer { display: none !important; } 
+            .no-print, header, .nav-menu, .panel:not(#recordsSection):not(#summarySection), footer { display: none !important; } 
             body { padding: 0; background: white; font-size: 10px; } 
-            #recordsSection { border: none; box-shadow: none; padding: 0; margin: 0; width: 100%; display: block !important; }
+            #recordsSection, #summarySection { border: none; box-shadow: none; padding: 0; margin: 0; width: 100%; display: block !important; }
             .table-responsive { max-height: none; overflow: visible; border: none; }
             table { font-size: 10px; width: 100%; page-break-inside: auto; }
             tr { page-break-inside: avoid; page-break-after: auto; }
@@ -228,7 +228,7 @@
 <!-- Login Modal -->
 <div id="loginOverlay">
     <div class="login-card">
-        <h3><i class="fa-solid fa-lock"></i> प्रणाली सुरक्षा लगइन</h3>
+        <h3><i class="fa-solid fa-lock"></i> काठमाडौं उपत्यका प्रहरी सशस्त्र प्रहरी गण नं. २ महाराजगंजको तालिमको डिजिटल अभिलेख</h3>
         <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">कृपया पासवर्ड प्रविष्ट गर्नुहोस्:</p>
         <input type="password" id="loginPasswordInput" placeholder="पासवर्ड लेख्नुहोस्">
         <button onclick="checkPassword()">लगइन गर्नुहोस्</button>
@@ -268,9 +268,11 @@
     <div class="nav-menu no-print">
         <button class="nav-btn active" onclick="switchTab('home')"><i class="fa-solid fa-house"></i> होम पेज</button>
         <button class="nav-btn" onclick="switchTab('form')"><i class="fa-solid fa-user-plus"></i> फारम मात्र भर्ने पेज</button>
-        <button class="nav-btn" onclick="switchTab('summary')"><i class="fa-solid fa-chart-pie"></i> तालिमगत तथा दर्जागत संख्यात्मक तथ्याङ्क (Summary)</button>
+        <button class="nav-btn" onclick="switchTab('summary')"><i class="fa-solid fa-chart-pie"></i> तथ्याङ्क (Summary)</button>
         <button class="nav-btn" onclick="switchTab('records')"><i class="fa-solid fa-users"></i> कार्यरत प्रहरी कर्मचारी (<span id="navRecordCount">0</span> जना)</button>
-        <button class="nav-btn" onclick="switchTab('notrain')"><i class="fa-solid fa-triangle-exclamation"></i> आधारभूत तालिम नगरके प्रहरी कर्मचारी</button>
+        <button class="nav-btn" onclick="switchTab('notrain')"><i class="fa-solid fa-triangle-exclamation"></i> आधारभूत तालिम नगरके प्रहरी</button>
+        <button class="nav-btn" onclick="switchTab('ongoingtrain')"><i class="fa-solid fa-person-walking-arrow-right"></i> तालिम गर्न गएका प्रहरी</button>
+        <button class="nav-btn" onclick="switchTab('completedtrain')"><i class="fa-solid fa-clipboard-check"></i> तालिम समाप्त पश्चात हाजिर भएका</button>
     </div>
 
     <!-- 1. HOME PAGE SECTION -->
@@ -379,7 +381,7 @@
 
     <!-- 3. SUMMARY SECTION -->
     <div id="tabSummary" class="tab-content" style="display: none;">
-        <div class="panel">
+        <div class="panel" id="summarySection">
             <div class="panel-title">
                 <span><i class="fa-solid fa-chart-pie"></i> तालीमगत तथा दर्जागत संख्यात्मक तथ्याङ्क (Summary)</span>
             </div>
@@ -456,7 +458,7 @@
     <div id="tabNoTrain" class="tab-content" style="display: none;">
         <div class="panel">
             <div class="panel-title">
-                <span><i class="fa-solid fa-triangle-exclamation"></i> आधारभूत तालिम नगरके प्रहरी कर्मचारी विवरण</span>
+                <span><i class="fa-solid fa-triangle-exclamation"></i> आधारभूत तालिम नगरेका प्रहरी कर्मचारी विवरण</span>
             </div>
             
             <div class="sub-tabs">
@@ -467,7 +469,6 @@
                 <button class="sub-tab-btn" onclick="switchSubTab('OfficeHelper')">प्रहरी कार्यालय सहयोगी</button>
             </div>
 
-            <!-- Form for No-Basic-Training Entry -->
             <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 12px;">
                 <h4 id="noTrainFormTitle" style="font-size: 13px; color: var(--secondary); margin-bottom: 8px;">नयाँ प्रविष्टि (प्रहरी निरीक्षक)</h4>
                 <form id="noTrainForm" onsubmit="handleNoTrainSubmit(event)">
@@ -524,7 +525,6 @@
                 </form>
             </div>
 
-            <!-- Table for No-Basic-Training -->
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -544,6 +544,122 @@
                         </tr>
                     </thead>
                     <tbody id="noTrainTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. ONGOING TRAINING SECTION -->
+    <div id="tabOngoingTrain" class="tab-content" style="display: none;">
+        <div class="panel">
+            <div class="panel-title">
+                <span><i class="fa-solid fa-person-walking-arrow-right"></i> तालिम गर्न गएका प्रहरी कर्मचारी विवरण</span>
+            </div>
+
+            <!-- तालिम गर्न गएका कर्मचारी इन्ट्री तथा इडिट फर्म -->
+            <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 12px;">
+                <h4 id="ogFormTitle" style="font-size: 13px; color: var(--secondary); margin-bottom: 8px;">नयाँ प्रविष्टि तथा सम्पादन फारम</h4>
+                <form id="ongoingTrainForm" onsubmit="handleOngoingTrainSubmit(event)">
+                    <input type="hidden" id="ogEditId" value="">
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;">
+                        <div class="form-group">
+                            <label>कम्प्युटर कोड *:</label>
+                            <input type="text" id="ogCompCode" required placeholder="कम्प्युटर कोड">
+                        </div>
+                        <div class="form-group">
+                            <label>दर्जा *:</label>
+                            <input type="text" id="ogRank" required placeholder="दर्जा">
+                        </div>
+                        <div class="form-group">
+                            <label>नामथर *:</label>
+                            <input type="text" id="ogFullname" required placeholder="नामथर">
+                        </div>
+                        <div class="form-group">
+                            <label>दरबन्दी *:</label>
+                            <input type="text" id="ogDarbandi" required placeholder="दरबन्दी स्थान">
+                        </div>
+                        <div class="form-group">
+                            <label>तालिम सुरु मिति *:</label>
+                            <input type="text" id="ogStartDate" required placeholder="YYYY-MM-DD">
+                        </div>
+                        <div class="form-group">
+                            <label>कार्य दिन *:</label>
+                            <input type="text" id="ogWorkDays" required placeholder="उदा: ४५ दिन">
+                        </div>
+                        <div class="form-group">
+                            <label>तालिमको नाम *:</label>
+                            <input type="text" id="ogTrainingName" required placeholder="तालिमको नाम">
+                        </div>
+                        <div class="form-group">
+                            <label>तालिम संचालन हुने स्थान *:</label>
+                            <input type="text" id="ogTrainingPlace" required placeholder="तालिम हुने स्थान">
+                        </div>
+                        <div class="form-group">
+                            <label>रवाना मिति *:</label>
+                            <input type="text" id="ogDispatchDate" required placeholder="YYYY-MM-DD">
+                        </div>
+                        <div class="form-group">
+                            <label>हाजिर मिति (कार्यालयमा हाजिर भएपछि):</label>
+                            <input type="text" id="ogAttendanceDate" placeholder="YYYY-MM-DD">
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: flex-end;">
+                        <button type="button" id="ogCancelBtn" class="btn btn-cancel" style="display:none; padding:4px 10px; font-size:11px;" onclick="resetOngoingTrainForm()">रद्द</button>
+                        <button type="submit" id="ogSubmitBtn" class="btn btn-primary" style="padding:4px 10px; font-size:11px;"><i class="fa-solid fa-save"></i> सुरक्षित गर्नुहोस्</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>सि.नं.</th>
+                            <th>कम्प्युटर कोड</th>
+                            <th>दर्जा</th>
+                            <th>नामथर</th>
+                            <th>दरबन्दी</th>
+                            <th>तालिम सुरु मिति</th>
+                            <th>कार्य दिन</th>
+                            <th>तालिमको नाम</th>
+                            <th>तालिम संचालन हुने स्थान</th>
+                            <th>रवाना मिति</th>
+                            <th>हाजिर मिति</th>
+                            <th class="no-print">कार्य</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ongoingTrainTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. COMPLETED TRAINING ATTENDED SECTION -->
+    <div id="tabCompletedTrain" class="tab-content" style="display: none;">
+        <div class="panel">
+            <div class="panel-title">
+                <span><i class="fa-solid fa-clipboard-check"></i> तालिम समाप्त पश्चात हाजिर भएका प्रहरी कर्मचारी विवरण</span>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>सि.नं.</th>
+                            <th>कम्प्युटर कोड</th>
+                            <th>दर्जा</th>
+                            <th>नामथर</th>
+                            <th>दरबन्दी</th>
+                            <th>तालिम सुरु मिति</th>
+                            <th>कार्य दिन</th>
+                            <th>तालिमको नाम</th>
+                            <th>तालिम संचालन हुने स्थान</th>
+                            <th>रवाना मिति</th>
+                            <th>हाजिर मिति</th>
+                            <th class="no-print">कार्य</th>
+                        </tr>
+                    </thead>
+                    <tbody id="completedTrainTableBody"></tbody>
                 </table>
             </div>
         </div>
@@ -583,6 +699,7 @@
     let noTrainRecords = JSON.parse(localStorage.getItem('police_notrain_records_v1')) || {
         Inspector: [], ASI: [], ShortTermASI: [], Jawan: [], OfficeHelper: []
     };
+    let ongoingTrainRecords = JSON.parse(localStorage.getItem('police_ongoing_train_records_v2')) || [];
     let currentSubCategory = 'Inspector';
 
     const subCategoryNames = {
@@ -625,6 +742,12 @@
         } else if (tabId === 'notrain') {
             document.getElementById('tabNoTrain').style.display = 'block';
             document.querySelectorAll('.nav-btn')[4].classList.add('active');
+        } else if (tabId === 'ongoingtrain') {
+            document.getElementById('tabOngoingTrain').style.display = 'block';
+            document.querySelectorAll('.nav-btn')[5].classList.add('active');
+        } else if (tabId === 'completedtrain') {
+            document.getElementById('tabCompletedTrain').style.display = 'block';
+            document.querySelectorAll('.nav-btn')[6].classList.add('active');
         }
     }
 
@@ -655,6 +778,7 @@
     function saveData() {
         localStorage.setItem('police_records_v4', JSON.stringify(staffRecords));
         localStorage.setItem('police_notrain_records_v1', JSON.stringify(noTrainRecords));
+        localStorage.setItem('police_ongoing_train_records_v2', JSON.stringify(ongoingTrainRecords));
         refreshUI();
     }
 
@@ -663,6 +787,8 @@
         renderSummaryTable();
         renderTable();
         renderNoTrainTable();
+        renderOngoingTrainTable();
+        renderCompletedTrainTable();
         document.getElementById('navRecordCount').innerText = staffRecords.length;
     }
 
@@ -780,6 +906,151 @@
     function deleteNoTrain(id) {
         if (confirm("के तपाईं यो विवरण हटाउन चाहनुहुन्छ?")) {
             noTrainRecords[currentSubCategory] = noTrainRecords[currentSubCategory].filter(r => String(r.id) !== String(id));
+            saveData();
+        }
+    }
+
+    // Ongoing Training Functions (With Edit, Delete & Attendance Sync)
+    function handleOngoingTrainSubmit(e) {
+        e.preventDefault();
+        const editId = document.getElementById('ogEditId').value;
+        const attendanceVal = cleanDate(document.getElementById('ogAttendanceDate').value.trim());
+        const compCodeVal = document.getElementById('ogCompCode').value.trim();
+        const trainingNameVal = document.getElementById('ogTrainingName').value.trim();
+
+        const obj = {
+            id: editId ? editId : generateUniqueId(),
+            compCode: compCodeVal,
+            rank: document.getElementById('ogRank').value.trim(),
+            fullname: document.getElementById('ogFullname').value.trim(),
+            darbandi: document.getElementById('ogDarbandi').value.trim(),
+            startDate: cleanDate(document.getElementById('ogStartDate').value.trim()),
+            workDays: document.getElementById('ogWorkDays').value.trim(),
+            trainingName: trainingNameVal,
+            trainingPlace: document.getElementById('ogTrainingPlace').value.trim(),
+            dispatchDate: cleanDate(document.getElementById('ogDispatchDate').value.trim()),
+            attendanceDate: attendanceVal
+        };
+
+        if (editId) {
+            const idx = ongoingTrainRecords.findIndex(r => String(r.id) === String(editId));
+            if (idx !== -1) ongoingTrainRecords[idx] = obj;
+        } else {
+            ongoingTrainRecords.unshift(obj);
+        }
+
+        if (attendanceVal && attendanceVal !== '-') {
+            let staffMember = staffRecords.find(s => String(s.compCode).trim() === compCodeVal);
+            if (staffMember) {
+                let existingTrainings = staffMember.trainingDetails ? staffMember.trainingDetails.split(',').map(s => s.trim()).filter(Boolean) : [];
+                if (!existingTrainings.includes(trainingNameVal)) {
+                    existingTrainings.push(trainingNameVal);
+                    staffMember.trainingDetails = existingTrainings.join(', ');
+                }
+            }
+        }
+
+        saveData();
+        resetOngoingTrainForm();
+        alert("विवरण सफलतापूर्वक सुरक्षित गरियो!");
+    }
+
+    function renderOngoingTrainTable() {
+        const tbody = document.getElementById('ongoingTrainTableBody');
+        const ongoingList = ongoingTrainRecords.filter(item => !item.attendanceDate || item.attendanceDate === '-');
+
+        if (ongoingList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding:15px; color:#64748b;">कुनै डाटा उपलब्ध छैन।</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        ongoingList.forEach((item, idx) => {
+            html += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td><b>${escapeHtml(item.compCode)}</b></td>
+                    <td>${escapeHtml(item.rank)}</td>
+                    <td><b>${escapeHtml(item.fullname)}</b></td>
+                    <td>${escapeHtml(item.darbandi)}</td>
+                    <td>${cleanDate(item.startDate)}</td>
+                    <td>${escapeHtml(item.workDays)}</td>
+                    <td><b style="color:var(--primary);">${escapeHtml(item.trainingName)}</b></td>
+                    <td>${escapeHtml(item.trainingPlace)}</td>
+                    <td>${cleanDate(item.dispatchDate)}</td>
+                    <td><span class="status-badge" style="background:#fef3c7; color:#92400e;">${cleanDate(item.attendanceDate)}</span></td>
+                    <td class="no-print">
+                        <button class="btn btn-warning" style="padding:2px 6px; font-size:10px;" onclick="editOngoingTrain('${item.id}')" title="सच्याउनुहोस्"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="deleteOngoingTrain('${item.id}')" title="हटाउनुहोस्"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function renderCompletedTrainTable() {
+        const tbody = document.getElementById('completedTrainTableBody');
+        const completedList = ongoingTrainRecords.filter(item => item.attendanceDate && item.attendanceDate !== '-');
+
+        if (completedList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding:15px; color:#64748b;">कुनै डाटा उपलब्ध छैन।</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        completedList.forEach((item, idx) => {
+            html += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td><b>${escapeHtml(item.compCode)}</b></td>
+                    <td>${escapeHtml(item.rank)}</td>
+                    <td><b>${escapeHtml(item.fullname)}</b></td>
+                    <td>${escapeHtml(item.darbandi)}</td>
+                    <td>${cleanDate(item.startDate)}</td>
+                    <td>${escapeHtml(item.workDays)}</td>
+                    <td><b style="color:var(--primary);">${escapeHtml(item.trainingName)}</b></td>
+                    <td>${escapeHtml(item.trainingPlace)}</td>
+                    <td>${cleanDate(item.dispatchDate)}</td>
+                    <td><span class="status-badge" style="background:#dcfce7; color:#15803d;">${cleanDate(item.attendanceDate)}</span></td>
+                    <td class="no-print">
+                        <button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="deleteOngoingTrain('${item.id}')" title="हटाउनुहोस्"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function editOngoingTrain(id) {
+        const item = ongoingTrainRecords.find(r => String(r.id) === String(id));
+        if (!item) return;
+
+        document.getElementById('ogEditId').value = item.id;
+        document.getElementById('ogCompCode').value = item.compCode || '';
+        document.getElementById('ogRank').value = item.rank || '';
+        document.getElementById('ogFullname').value = item.fullname || '';
+        document.getElementById('ogDarbandi').value = item.darbandi || '';
+        document.getElementById('ogStartDate').value = cleanDate(item.startDate || '');
+        document.getElementById('ogWorkDays').value = item.workDays || '';
+        document.getElementById('ogTrainingName').value = item.trainingName || '';
+        document.getElementById('ogTrainingPlace').value = item.trainingPlace || '';
+        document.getElementById('ogDispatchDate').value = cleanDate(item.dispatchDate || '');
+        document.getElementById('ogAttendanceDate').value = (item.attendanceDate === '-') ? '' : cleanDate(item.attendanceDate || '');
+
+        document.getElementById('ogSubmitBtn').innerHTML = `<i class="fa-solid fa-rotate"></i> अद्यावधिक`;
+        document.getElementById('ogCancelBtn').style.display = 'inline-block';
+        switchTab('ongoingtrain');
+    }
+
+    function resetOngoingTrainForm() {
+        document.getElementById('ogEditId').value = '';
+        document.getElementById('ongoingTrainForm').reset();
+        document.getElementById('ogSubmitBtn').innerHTML = `<i class="fa-solid fa-save"></i> सुरक्षित गर्नुहोस्`;
+        document.getElementById('ogCancelBtn').style.display = 'none';
+    }
+
+    function deleteOngoingTrain(id) {
+        if (confirm("के तपाईं यो विवरण हटाउन चाहनुहुन्छ?")) {
+            ongoingTrainRecords = ongoingTrainRecords.filter(r => String(r.id) !== String(id));
             saveData();
         }
     }
