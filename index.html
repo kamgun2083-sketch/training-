@@ -270,7 +270,7 @@
         <button class="nav-btn" onclick="switchTab('form')"><i class="fa-solid fa-user-plus"></i> फारम मात्र भर्ने पेज</button>
         <button class="nav-btn" onclick="switchTab('summary')"><i class="fa-solid fa-chart-pie"></i> तथ्याङ्क (Summary)</button>
         <button class="nav-btn" onclick="switchTab('records')"><i class="fa-solid fa-users"></i> कार्यरत प्रहरी कर्मचारी (<span id="navRecordCount">0</span> जना)</button>
-        <button class="nav-btn" onclick="switchTab('notrain')"><i class="fa-solid fa-triangle-exclamation"></i> आधारभूत तालिम नगरके प्रहरी</button>
+        <button class="nav-btn" onclick="switchTab('notrain')"><i class="fa-solid fa-triangle-exclamation"></i> आधारभूत तालिम नगरेका प्रहरी</button>
         <button class="nav-btn" onclick="switchTab('ongoingtrain')"><i class="fa-solid fa-person-walking-arrow-right"></i> तालिम गर्न गएका प्रहरी</button>
         <button class="nav-btn" onclick="switchTab('completedtrain')"><i class="fa-solid fa-clipboard-check"></i> तालिम समाप्त पश्चात हाजिर भएका</button>
     </div>
@@ -974,7 +974,7 @@
 
     function renderOngoingTrainTable() {
         const tbody = document.getElementById('ongoingTrainTableBody');
-        const ongoingList = ongoingTrainRecords.filter(item => !item.attendanceDate || item.attendanceDate === '-');
+        const ongoingList = ongoingTrainRecords.filter(item => !item.attendanceDate || item.attendanceDate === '-' || item.attendanceDate === '');
 
         if (ongoingList.length === 0) {
             tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding:15px; color:#64748b;">कुनै डाटा उपलब्ध छैन।</td></tr>`;
@@ -1007,7 +1007,7 @@
 
     function renderCompletedTrainTable() {
         const tbody = document.getElementById('completedTrainTableBody');
-        const completedList = ongoingTrainRecords.filter(item => item.attendanceDate && item.attendanceDate !== '-');
+        const completedList = ongoingTrainRecords.filter(item => item.attendanceDate && item.attendanceDate !== '-' && item.attendanceDate !== '');
 
         if (completedList.length === 0) {
             tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding:15px; color:#64748b;">कुनै डाटा उपलब्ध छैन।</td></tr>`;
@@ -1294,6 +1294,7 @@
 
         const recordObj = {
             id: recordId ? recordId : generateUniqueId(),
+            dataType: 'staff',
             compCode: compCodeVal,
             pmisNo: formattedPmis,
             rank: document.getElementById('rank').value,
@@ -1335,21 +1336,42 @@
             .then(response => response.json())
             .then(cloudData => {
                 if (Array.isArray(cloudData) && cloudData.length > 0) {
-                    staffRecords = [];
-                    noTrainRecords = { Inspector: [], ASI: [], ShortTermASI: [], Jawan: [], OfficeHelper: [] };
-                    ongoingTrainRecords = [];
+                    let newStaff = [];
+                    let newNoTrain = { Inspector: [], ASI: [], ShortTermASI: [], Jawan: [], OfficeHelper: [] };
+                    let newOngoing = [];
 
                     cloudData.forEach(row => {
-                        if (row.dataType === 'noTrain') {
+                        let type = row.dataType;
+                        if (!type) {
+                            if (row.canTrain !== undefined || row.subCategory) {
+                                type = 'noTrain';
+                            } else if (row.startDate && row.trainingName) {
+                                type = 'ongoingTrain';
+                            } else {
+                                type = 'staff';
+                            }
+                        }
+
+                        if (type === 'noTrain') {
                             let cat = row.subCategory || 'Inspector';
-                            if (!noTrainRecords[cat]) noTrainRecords[cat] = [];
-                            noTrainRecords[cat].push(row);
-                        } else if (row.dataType === 'ongoingTrain') {
-                            ongoingTrainRecords.push(row);
+                            if (!newNoTrain[cat]) newNoTrain[cat] = [];
+                            if (!newNoTrain[cat].some(r => String(r.id) === String(row.id))) {
+                                newNoTrain[cat].push(row);
+                            }
+                        } else if (type === 'ongoingTrain') {
+                            if (!newOngoing.some(r => String(r.id) === String(row.id))) {
+                                newOngoing.push(row);
+                            }
                         } else {
-                            staffRecords.push(row);
+                            if (!newStaff.some(r => String(r.id) === String(row.id))) {
+                                newStaff.push(row);
+                            }
                         }
                     });
+
+                    staffRecords = newStaff;
+                    noTrainRecords = newNoTrain;
+                    ongoingTrainRecords = newOngoing;
 
                     localStorage.setItem('police_records_v4', JSON.stringify(staffRecords));
                     localStorage.setItem('police_notrain_records_v1', JSON.stringify(noTrainRecords));
@@ -1462,6 +1484,7 @@
                     if (compCode || fullname) {
                         staffRecords.unshift({
                             id: generateUniqueId(),
+                            dataType: 'staff',
                             compCode: String(compCode).trim(),
                             pmisNo: formattedPmis,
                             rank: String(row["दर्जा"] || row["rank"] || '').trim(),
@@ -1493,7 +1516,12 @@
 
     function exportJSONBackup() {
         if (staffRecords.length === 0) { alert("ब्याकअप लिनको लागि कुनै डाटा छैन।"); return; }
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(staffRecords, null, 2));
+        const allDataForBackup = {
+            staffRecords: staffRecords,
+            noTrainRecords: noTrainRecords,
+            ongoingTrainRecords: ongoingTrainRecords
+        };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allDataForBackup, null, 2));
         const a = document.createElement('a');
         a.href = dataStr;
         a.download = `Police_Records_Backup_${new Date().toISOString().slice(0,10)}.json`;
@@ -1509,6 +1537,12 @@
                 const data = JSON.parse(e.target.result);
                 if (Array.isArray(data)) {
                     staffRecords = data;
+                    saveData();
+                    alert("डाटा सफलतापूर्वक रिस्टोर भयो!");
+                } else if (data && typeof data === 'object') {
+                    if (data.staffRecords) staffRecords = data.staffRecords;
+                    if (data.noTrainRecords) noTrainRecords = data.noTrainRecords;
+                    if (data.ongoingTrainRecords) ongoingTrainRecords = data.ongoingTrainRecords;
                     saveData();
                     alert("डाटा सफलतापूर्वक रिस्टोर भयो!");
                 } else {
