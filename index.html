@@ -817,6 +817,8 @@
         const editId = document.getElementById('ntEditId').value;
         const obj = {
             id: editId ? editId : generateUniqueId(),
+            dataType: 'noTrain',
+            subCategory: currentSubCategory,
             compCode: document.getElementById('ntCompCode').value.trim(),
             rank: document.getElementById('ntRank').value.trim(),
             fullname: document.getElementById('ntFullname').value.trim(),
@@ -841,6 +843,13 @@
         saveData();
         resetNoTrainForm();
         alert("विवरण सफलतापूर्वक सुरक्षित गरियो!");
+
+        fetch(scriptUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(obj)
+        }).catch(error => console.error('Cloud Sync Error:', error));
     }
 
     function renderNoTrainTable() {
@@ -920,6 +929,7 @@
 
         const obj = {
             id: editId ? editId : generateUniqueId(),
+            dataType: 'ongoingTrain',
             compCode: compCodeVal,
             rank: document.getElementById('ogRank').value.trim(),
             fullname: document.getElementById('ogFullname').value.trim(),
@@ -953,6 +963,13 @@
         saveData();
         resetOngoingTrainForm();
         alert("विवरण सफलतापूर्वक सुरक्षित गरियो!");
+
+        fetch(scriptUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(obj)
+        }).catch(error => console.error('Cloud Sync Error:', error));
     }
 
     function renderOngoingTrainTable() {
@@ -1318,8 +1335,25 @@
             .then(response => response.json())
             .then(cloudData => {
                 if (Array.isArray(cloudData) && cloudData.length > 0) {
-                    staffRecords = cloudData;
+                    staffRecords = [];
+                    noTrainRecords = { Inspector: [], ASI: [], ShortTermASI: [], Jawan: [], OfficeHelper: [] };
+                    ongoingTrainRecords = [];
+
+                    cloudData.forEach(row => {
+                        if (row.dataType === 'noTrain') {
+                            let cat = row.subCategory || 'Inspector';
+                            if (!noTrainRecords[cat]) noTrainRecords[cat] = [];
+                            noTrainRecords[cat].push(row);
+                        } else if (row.dataType === 'ongoingTrain') {
+                            ongoingTrainRecords.push(row);
+                        } else {
+                            staffRecords.push(row);
+                        }
+                    });
+
                     localStorage.setItem('police_records_v4', JSON.stringify(staffRecords));
+                    localStorage.setItem('police_notrain_records_v1', JSON.stringify(noTrainRecords));
+                    localStorage.setItem('police_ongoing_train_records_v2', JSON.stringify(ongoingTrainRecords));
                     refreshUI();
                 }
             })
