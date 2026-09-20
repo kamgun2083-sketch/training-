@@ -1355,12 +1355,20 @@
                         if (type === 'noTrain') {
                             let cat = row.subCategory || 'Inspector';
                             if (!newNoTrain[cat]) newNoTrain[cat] = [];
-                            if (!newNoTrain[cat].some(r => String(r.id) === String(row.id))) {
+                            // एउटै ID दोहोरिएमा पछिल्लो (सच्याइएको) विवरण राख्ने
+                            const ntIdx = newNoTrain[cat].findIndex(r => String(r.id) === String(row.id));
+                            if (ntIdx === -1) {
                                 newNoTrain[cat].push(row);
+                            } else {
+                                newNoTrain[cat][ntIdx] = row;
                             }
                         } else if (type === 'ongoingTrain') {
-                            if (!newOngoing.some(r => String(r.id) === String(row.id))) {
+                            // एउटै ID दोहोरिएमा पछिल्लो (सच्याइएको / हाजिर मिति भरिएको) विवरण राख्ने
+                            const ogIdx = newOngoing.findIndex(r => String(r.id) === String(row.id));
+                            if (ogIdx === -1) {
                                 newOngoing.push(row);
+                            } else {
+                                newOngoing[ogIdx] = row;
                             }
                         } else {
                             if (!newStaff.some(r => String(r.id) === String(row.id))) {
